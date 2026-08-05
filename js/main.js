@@ -35,36 +35,44 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  function isValidUrl(string) {
-    if (!string) return false;
-    const trimmed = string.trim();
+  // تحسين دالة التحقق وتنسيق الرابط لتناسب كيبورد الموبايل والإكمال التلقائي
+  function formatAndValidateUrl(rawString) {
+    if (!rawString) return { valid: false, url: "" };
+    let trimmed = rawString.trim();
+    if (!trimmed) return { valid: false, url: "" };
+
+    // إذا لم يدخل المستخدم البروتوكول، نضيفه تلقائياً
     if (!/^https?:\/\//i.test(trimmed)) {
-      return false;
+      trimmed = "https://" + trimmed;
     }
+
     try {
-      new URL(trimmed);
-      return true;
+      const parsed = new URL(trimmed);
+      // التأكد من وجود اسم نطاق حقيقي
+      const hasValidHost = parsed.hostname.includes(".");
+      return { valid: hasValidHost, url: trimmed };
     } catch (_) {
-      return false;
+      return { valid: false, url: "" };
     }
   }
 
   function handleUrlInput() {
-    const value = DOM.urlInput.value.trim();
+    const value = DOM.urlInput ? DOM.urlInput.value : "";
 
-    if (value.length > 0) {
-      DOM.clearBtn.classList.add("visible");
+    if (value.trim().length > 0) {
+      if (DOM.clearBtn) DOM.clearBtn.classList.add("visible");
     } else {
-      DOM.clearBtn.classList.remove("visible");
+      if (DOM.clearBtn) DOM.clearBtn.classList.remove("visible");
     }
 
-    const valid = isValidUrl(value);
-    DOM.generateBtn.disabled = !valid;
+    const { valid } = formatAndValidateUrl(value);
+    if (DOM.generateBtn) DOM.generateBtn.disabled = !valid;
   }
 
   function generateQRCode() {
-    const url = DOM.urlInput.value.trim();
-    if (!isValidUrl(url)) return;
+    const rawValue = DOM.urlInput ? DOM.urlInput.value : "";
+    const { valid, url } = formatAndValidateUrl(rawValue);
+    if (!valid) return;
 
     // 1. تفريغ الحاوية
     DOM.qrCodeCanvas.innerHTML = "";
@@ -84,7 +92,7 @@ document.addEventListener("DOMContentLoaded", () => {
       correctLevel: QRCode.CorrectLevel.H,
     });
 
-    // 4. التحقق والانتظار حتى تجهز صورة الـ QR وتضمين التجهيز
+    // 4. التحقق والانتظار حتى تجهز صورة الـ QR وتتولد خلفيتها بنجاح
     const checkImageReady = setInterval(() => {
       const img = DOM.qrCodeCanvas.querySelector("img");
       const canvas = DOM.qrCodeCanvas.querySelector("canvas");
@@ -93,10 +101,11 @@ document.addEventListener("DOMContentLoaded", () => {
         if (canvas) canvas.style.display = "none";
         img.style.display = "block";
 
-        // إظهار النتائج بعد التأكد من وجود البيانات
-        DOM.previewPlaceholder.classList.add("d-none");
-        DOM.qrBadge.classList.remove("d-none");
-        DOM.openPdfBtn.disabled = false;
+        // إظهار النتائج وتفعيل زر الـ PDF
+        if (DOM.previewPlaceholder)
+          DOM.previewPlaceholder.classList.add("d-none");
+        if (DOM.qrBadge) DOM.qrBadge.classList.remove("d-none");
+        if (DOM.openPdfBtn) DOM.openPdfBtn.disabled = false;
 
         clearInterval(checkImageReady);
       }
@@ -104,27 +113,29 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function clearUrlInputOnly() {
+    if (!DOM.urlInput) return;
     DOM.urlInput.value = "";
-    DOM.clearBtn.classList.remove("visible");
-    DOM.generateBtn.disabled = true;
+    if (DOM.clearBtn) DOM.clearBtn.classList.remove("visible");
+    if (DOM.generateBtn) DOM.generateBtn.disabled = true;
     DOM.urlInput.focus();
   }
 
   function resetForm() {
-    DOM.urlInput.value = "";
-    DOM.clearBtn.classList.remove("visible");
+    if (DOM.urlInput) DOM.urlInput.value = "";
+    if (DOM.clearBtn) DOM.clearBtn.classList.remove("visible");
 
-    DOM.generateBtn.disabled = true;
-    DOM.openPdfBtn.disabled = true;
+    if (DOM.generateBtn) DOM.generateBtn.disabled = true;
+    if (DOM.openPdfBtn) DOM.openPdfBtn.disabled = true;
 
-    DOM.qrBadge.classList.add("d-none");
-    DOM.previewPlaceholder.classList.remove("d-none");
+    if (DOM.qrBadge) DOM.qrBadge.classList.add("d-none");
+    if (DOM.previewPlaceholder)
+      DOM.previewPlaceholder.classList.remove("d-none");
 
-    DOM.qrCodeCanvas.innerHTML = "";
+    if (DOM.qrCodeCanvas) DOM.qrCodeCanvas.innerHTML = "";
     state.qrInstance = null;
 
-    DOM.widthInput.value = 200;
-    DOM.heightInput.value = 200;
+    if (DOM.widthInput) DOM.widthInput.value = 200;
+    if (DOM.heightInput) DOM.heightInput.value = 200;
   }
 
   function openPdf() {
@@ -171,16 +182,26 @@ document.addEventListener("DOMContentLoaded", () => {
       });
   }
 
-  // Event Listeners
+  // --- Event Listeners ---
   if (DOM.themeToggle) DOM.themeToggle.addEventListener("click", toggleTheme);
-  if (DOM.urlInput) DOM.urlInput.addEventListener("input", handleUrlInput);
+
+  // ربط جميع أحداث الإدخال الممكنة على الهواتف لضمان استجابة زر الـ Generate
+  if (DOM.urlInput) {
+    ["input", "keyup", "change", "paste", "blur"].forEach((eventName) => {
+      DOM.urlInput.addEventListener(eventName, () => {
+        setTimeout(handleUrlInput, 10);
+      });
+    });
+  }
 
   if (DOM.clearBtn) {
     DOM.clearBtn.addEventListener("click", clearUrlInputOnly);
   }
 
-  if (DOM.generateBtn)
+  if (DOM.generateBtn) {
     DOM.generateBtn.addEventListener("click", generateQRCode);
+  }
+
   if (DOM.resetBtn) DOM.resetBtn.addEventListener("click", resetForm);
   if (DOM.openPdfBtn) DOM.openPdfBtn.addEventListener("click", openPdf);
 });
