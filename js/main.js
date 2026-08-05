@@ -141,13 +141,18 @@ document.addEventListener("DOMContentLoaded", () => {
       jsPDF: { unit: "in", format: "letter", orientation: "portrait" },
     };
 
-    // التنزيل المباشر يضمن العمل على الموبايل واللابتوب بدون حظر Pop-up
+    // توليد الملف وتحويله لـ Blob لفتحه مباشرة داخل المتصفح
     html2pdf()
       .set(options)
       .from(DOM.qrBadge)
-      .save()
+      .toPdf()
+      .output("blob")
+      .then((blob) => {
+        const pdfUrl = URL.createObjectURL(blob);
+        window.open(pdfUrl, "_blank");
+      })
       .catch((err) => {
-        console.error("Error generating PDF:", err);
+        console.error("Error generating PDF preview:", err);
       });
   }
 
