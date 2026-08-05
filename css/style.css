@@ -291,7 +291,6 @@ a {
   color: var(--text-main);
 }
 
-/* Placeholder visibility enhancements */
 .app-input::placeholder {
   color: var(--text-muted);
   opacity: 0.75;
@@ -360,7 +359,7 @@ a {
   background: var(--bg-main);
   border: 1.5px dashed var(--border-primary);
   border-radius: 14px;
-  padding: 3rem 2rem 2rem;
+  padding: 2.5rem 1rem 1.5rem;
   overflow: visible;
 }
 
@@ -389,67 +388,79 @@ a {
   margin-bottom: 0;
 }
 
+
 .qr-badge {
   position: relative;
-  display: flex;
+  display: inline-flex;
   flex-direction: column;
   align-items: center;
-  width: fit-content;
-  margin: 40px auto 20px !important;
-  overflow: visible !important;
+  max-width: 100%;
+  margin: 0 auto !important;
+  padding-top: 16px; 
+  box-sizing: border-box;
 }
+
 
 .qr-badge-pill {
   position: absolute;
-  top: -16px;
+  top: 0;
   left: 50%;
   transform: translateX(-50%);
   background: var(--primary-color);
   color: #ffffff;
   font-weight: 800;
-  font-size: 0.8rem;
+  font-size: 0.75rem;
   letter-spacing: 0.06em;
-  padding: 0.35rem 1.6rem 0.25rem;
-  border-radius: 12px 12px 0 0 !important;
+  padding: 0.35rem 1.4rem 0.25rem;
+  border-radius: 8px 8px 0 0 !important;
   white-space: nowrap;
   line-height: 1.2;
   z-index: 10;
+  box-shadow: 0 -2px 6px rgba(0, 0, 0, 0.1);
 }
+
 
 .qr-badge-inner {
   background: #ffffff;
   border: 3.5px solid var(--text-main);
-  border-radius: 0 !important;
+  border-radius: 4px !important;
   padding: 1.25rem;
   display: flex;
   align-items: center;
   justify-content: center;
   line-height: 0;
   width: auto;
-}
-
-/* إظهار عنصر img دائماً ومنع تكراره */
-.qr-badge-inner img {
-  display: block !important;
   max-width: 100%;
-  height: auto;
-  background: #f3f4f6;
-  padding: 0.75rem;
+  box-sizing: border-box;
+  margin-top: -1px;
 }
 
-/* إخفاء الـ canvas افتراضياً عند وجود الـ img */
-.qr-badge-inner canvas {
+
+#qrCodeCanvas {
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  width: auto;
+  height: auto;
+  max-width: 100%;
+  overflow: hidden;
+}
+
+
+#qrCodeCanvas canvas {
   display: none !important;
 }
 
-/* إظهار الـ canvas فقط في حال عدم وجود عنصر img يحتوي على رابط صورة */
-.qr-badge-inner:not(:has(img[src])) canvas {
+#qrCodeCanvas img {
   display: block !important;
-  max-width: 100%;
-  height: auto;
+  max-width: 100% !important;
+  height: auto !important;
   background: #f3f4f6;
-  padding: 0.75rem;
+  padding: 0.57rem;
+  box-sizing: border-box;
+  object-fit: contain;
 }
+
 
 .qr-badge-footer {
   position: relative;
@@ -457,15 +468,16 @@ a {
   align-items: center;
   justify-content: center;
   width: 100%;
-  margin-top: 14px;
+  padding-top: 12px;
 }
 
 .qr-badge-footer-text {
   font-weight: 900;
-  font-size: 1.5rem;
+  font-size: 1.35rem;
   letter-spacing: 0.05em;
   color: var(--text-main);
   text-transform: uppercase;
+  text-align: center;
 }
 
 .d-none {
@@ -480,10 +492,13 @@ a {
   }
   .preview-stage {
     min-height: 260px;
-    padding: 2rem 1.25rem 1.25rem;
+    padding: 2.5rem 1rem 1.25rem;
   }
   .hero-title {
     font-size: 1.5rem;
+  }
+  .qr-badge-footer-text {
+    font-size: 1.15rem;
   }
 }
 

@@ -66,14 +66,20 @@ document.addEventListener("DOMContentLoaded", () => {
     const url = DOM.urlInput.value.trim();
     if (!isValidUrl(url)) return;
 
+
     DOM.qrCodeCanvas.innerHTML = "";
     state.qrInstance = null;
 
-    // Parse dimension inputs (fallback to 200)
+    
     const width = parseInt(DOM.widthInput.value, 10) || 200;
     const height = parseInt(DOM.heightInput.value, 10) || 200;
 
-    // Initialize QRCode instance
+    
+    DOM.previewPlaceholder.classList.add("d-none");
+    DOM.qrBadge.classList.remove("d-none");
+    DOM.openPdfBtn.disabled = false;
+
+    // QR Code
     state.qrInstance = new QRCode(DOM.qrCodeCanvas, {
       text: url,
       width: width,
@@ -83,19 +89,20 @@ document.addEventListener("DOMContentLoaded", () => {
       correctLevel: QRCode.CorrectLevel.H,
     });
 
-    // إخفاء الكانفاس برمجياً للحد من مشاكل التكرار البصري
-    setTimeout(() => {
-      const img = DOM.qrCodeCanvas.querySelector("img");
-      const canvas = DOM.qrCodeCanvas.querySelector("canvas");
-      if (img && canvas && img.src) {
-        canvas.style.display = "none";
-      }
-    }, 50);
+    const canvas = DOM.qrCodeCanvas.querySelector("canvas");
+    if (canvas) {
+      canvas.style.display = "none";
+    }
 
-    // Update display state
-    DOM.previewPlaceholder.classList.add("d-none");
-    DOM.qrBadge.classList.remove("d-none");
-    DOM.openPdfBtn.disabled = false;
+    const checkAndClean = setInterval(() => {
+      const img = DOM.qrCodeCanvas.querySelector("img");
+      const currentCanvas = DOM.qrCodeCanvas.querySelector("canvas");
+
+      if (img && img.src) {
+        if (currentCanvas) currentCanvas.remove();
+        clearInterval(checkAndClean);
+      }
+    }, 10);
   }
 
   function clearUrlInputOnly() {
@@ -134,17 +141,27 @@ document.addEventListener("DOMContentLoaded", () => {
         useCORS: true,
         allowTaint: true,
         logging: false,
+        backgroundColor: "#ffffff",
         scrollX: 0,
         scrollY: 0,
-        windowWidth: document.documentElement.offsetWidth,
       },
       jsPDF: { unit: "in", format: "letter", orientation: "portrait" },
     };
 
-    // توليد الملف وتحويله لـ Blob لفتحه مباشرة داخل المتصفح
+    
+    const container = document.createElement("div");
+    container.style.width = "100%";
+    container.style.display = "flex";
+    container.style.justifyContent = "center";
+    container.style.alignItems = "center";
+    container.style.paddingTop = "50px";
+
+    const clonedBadge = DOM.qrBadge.cloneNode(true);
+    container.appendChild(clonedBadge);
+
     html2pdf()
       .set(options)
-      .from(DOM.qrBadge)
+      .from(container)
       .toPdf()
       .output("blob")
       .then((blob) => {
