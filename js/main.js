@@ -66,20 +66,15 @@ document.addEventListener("DOMContentLoaded", () => {
     const url = DOM.urlInput.value.trim();
     if (!isValidUrl(url)) return;
 
-
+    // 1. تفريغ الحاوية
     DOM.qrCodeCanvas.innerHTML = "";
     state.qrInstance = null;
 
-    
+    // 2. قراءة الأبعاد
     const width = parseInt(DOM.widthInput.value, 10) || 200;
     const height = parseInt(DOM.heightInput.value, 10) || 200;
 
-    
-    DOM.previewPlaceholder.classList.add("d-none");
-    DOM.qrBadge.classList.remove("d-none");
-    DOM.openPdfBtn.disabled = false;
-
-    // QR Code
+    // 3. التوليد عبر المكتبة
     state.qrInstance = new QRCode(DOM.qrCodeCanvas, {
       text: url,
       width: width,
@@ -89,20 +84,23 @@ document.addEventListener("DOMContentLoaded", () => {
       correctLevel: QRCode.CorrectLevel.H,
     });
 
-    const canvas = DOM.qrCodeCanvas.querySelector("canvas");
-    if (canvas) {
-      canvas.style.display = "none";
-    }
-
-    const checkAndClean = setInterval(() => {
+    // 4. التحقق والانتظار حتى تجهز صورة الـ QR وتضمين التجهيز
+    const checkImageReady = setInterval(() => {
       const img = DOM.qrCodeCanvas.querySelector("img");
-      const currentCanvas = DOM.qrCodeCanvas.querySelector("canvas");
+      const canvas = DOM.qrCodeCanvas.querySelector("canvas");
 
-      if (img && img.src) {
-        if (currentCanvas) currentCanvas.remove();
-        clearInterval(checkAndClean);
+      if (img && img.getAttribute("src")) {
+        if (canvas) canvas.style.display = "none";
+        img.style.display = "block";
+
+        // إظهار النتائج بعد التأكد من وجود البيانات
+        DOM.previewPlaceholder.classList.add("d-none");
+        DOM.qrBadge.classList.remove("d-none");
+        DOM.openPdfBtn.disabled = false;
+
+        clearInterval(checkImageReady);
       }
-    }, 10);
+    }, 20);
   }
 
   function clearUrlInputOnly() {
@@ -148,13 +146,13 @@ document.addEventListener("DOMContentLoaded", () => {
       jsPDF: { unit: "in", format: "letter", orientation: "portrait" },
     };
 
-    
+    // عنصر حاوي لضمان توسيط البادج في منتصف صفحة PDF وعدم اقتطاع الأطراف
     const container = document.createElement("div");
     container.style.width = "100%";
     container.style.display = "flex";
     container.style.justifyContent = "center";
     container.style.alignItems = "center";
-    container.style.paddingTop = "50px";
+    container.style.paddingTop = "40px";
 
     const clonedBadge = DOM.qrBadge.cloneNode(true);
     container.appendChild(clonedBadge);

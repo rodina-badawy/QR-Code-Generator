@@ -388,7 +388,7 @@ a {
   margin-bottom: 0;
 }
 
-
+/* الإطار الخارجي الهيكلي للبيدج */
 .qr-badge {
   position: relative;
   display: inline-flex;
@@ -396,11 +396,11 @@ a {
   align-items: center;
   max-width: 100%;
   margin: 0 auto !important;
-  padding-top: 16px; 
+  padding-top: 22px; /* المساحة المحجوزة للشريط العلوي لحل التصدير */
   box-sizing: border-box;
 }
 
-
+/* الشريط العلوي SCAN ME */
 .qr-badge-pill {
   position: absolute;
   top: 0;
@@ -419,7 +419,7 @@ a {
   box-shadow: 0 -2px 6px rgba(0, 0, 0, 0.1);
 }
 
-
+/* الإطار الأبيض حول الـ QR */
 .qr-badge-inner {
   background: #ffffff;
   border: 3.5px solid var(--text-main);
@@ -435,7 +435,7 @@ a {
   margin-top: -1px;
 }
 
-
+/* منطقة رسم الـ QR */
 #qrCodeCanvas {
   display: flex !important;
   align-items: center;
@@ -443,25 +443,25 @@ a {
   width: auto;
   height: auto;
   max-width: 100%;
-  overflow: hidden;
+  min-width: 150px;
+  min-height: 150px;
 }
 
-
 #qrCodeCanvas canvas {
-  display: none !important;
+  max-width: 100%;
+  height: auto;
 }
 
 #qrCodeCanvas img {
-  display: block !important;
   max-width: 100% !important;
   height: auto !important;
-  background: #f3f4f6;
-  padding: 0.57rem;
+  background: #ffffff;
+  padding: 0.2rem;
   box-sizing: border-box;
   object-fit: contain;
 }
 
-
+/* النص السفلي */
 .qr-badge-footer {
   position: relative;
   display: flex;
