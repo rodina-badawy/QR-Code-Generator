@@ -74,7 +74,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // --- 4. QR GENERATOR LOGIC ---
   function generateQRCode(e) {
-    if (e) e.preventDefault(); // منع أي سلوك افتراضي للنماذج
+    if (e) e.preventDefault(); 
 
     if (!DOM.urlInput) return;
     const rawValue = DOM.urlInput.value;
@@ -82,7 +82,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (!valid) return;
 
-    // مسح عنصر الـ Canvas السابق
+
     if (DOM.qrCodeCanvas) {
       DOM.qrCodeCanvas.innerHTML = "";
     }
@@ -105,7 +105,6 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-    // Polling Mechanism للتأكد من بناء الـ QR قبل الإظهار
     let attempts = 0;
     const maxAttempts = 100;
 
@@ -192,7 +191,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const clonedBadge = DOM.qrBadge.cloneNode(true);
 
-    // نقل صورة الـ QR إلى المكون المستنسخ بنجاح
     const originalImg = DOM.qrCodeCanvas?.querySelector("img");
     const originalCanvas = DOM.qrCodeCanvas?.querySelector("canvas");
     const clonedCanvasInner = clonedBadge.querySelector("#qrCodeCanvas");
