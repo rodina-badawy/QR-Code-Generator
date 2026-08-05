@@ -16,7 +16,7 @@
       href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap"
       rel="stylesheet"
     />
-    <!-- favicon -->
+    <!-- Favicon -->
     <link rel="shortcut icon" href="favicon.png" type="image/x-icon" />
     <!-- App Styles -->
     <link rel="stylesheet" href="css/style.css" />
@@ -25,7 +25,6 @@
     <!-- ===================== NAVBAR ===================== -->
     <nav class="app-navbar navbar navbar-expand-lg sticky-top">
       <div class="container-fluid px-3 px-md-4">
-        
         <a class="navbar-brand app-brand me-auto" href="#">
           <span class="app-brand-icon"><i class="fa-solid fa-qrcode"></i></span>
           <span class="app-brand-text">QR Code</span>
@@ -60,7 +59,6 @@
             <a href="#" class="btn app-btn-primary auth-cta">Create account</a>
           </div>
         </div>
-
       </div>
     </nav>
 
@@ -72,8 +70,7 @@
             Turn any link into a scannable QR code
           </h1>
           <p class="hero-sub">
-            Paste a URL, generate a printable QR badge, and download it as a PDF
-            in seconds.
+            Paste a URL, generate a printable QR badge, and download it as a PDF in seconds.
           </p>
         </div>
 
@@ -85,92 +82,83 @@
                 1. Enter your details
               </h2>
 
-              <!-- URL Input -->
-              <div class="mb-3">
-                <label
-                  for="urlInput"
-                  class="form-label app-label"
-                  >Destination URL</label
-                >
-                <div class="url-input-wrap">
-                  <i class="fa-solid fa-link input-icon"></i>
-                  <input
-                    type="url"
-                    class="form-control app-input url-input"
-                    id="urlInput"
-                    placeholder="https://example.com"
-                    autocomplete="off"
-                  />
+              <form id="qrForm" onsubmit="return false;">
+                <!-- URL Input -->
+                <div class="mb-3">
+                  <label for="urlInput" class="form-label app-label">Destination URL</label>
+                  <div class="url-input-wrap">
+                    <i class="fa-solid fa-link input-icon"></i>
+                    <input
+                      type="url"
+                      inputmode="url"
+                      class="form-control app-input url-input"
+                      id="urlInput"
+                      placeholder="https://example.com"
+                      autocomplete="off"
+                    />
+                    <button
+                      type="button"
+                      class="clear-btn"
+                      id="clearBtn"
+                      aria-label="Clear input"
+                    >
+                      <i class="fa-solid fa-xmark"></i>
+                    </button>
+                  </div>
+                  <div class="input-hint" id="urlHint">
+                    Include http:// or https://
+                  </div>
+                </div>
+
+                <!-- Dimensions -->
+                <div class="row g-3 mb-4">
+                  <div class="col-6">
+                    <label for="widthInput" class="form-label app-label">Width (px)</label>
+                    <input
+                      type="number"
+                      class="form-control app-input"
+                      id="widthInput"
+                      value="200"
+                      min="80"
+                      max="1000"
+                      step="10"
+                    />
+                  </div>
+                  <div class="col-6">
+                    <label for="heightInput" class="form-label app-label">Height (px)</label>
+                    <input
+                      type="number"
+                      class="form-control app-input"
+                      id="heightInput"
+                      value="200"
+                      min="80"
+                      max="1000"
+                      step="10"
+                    />
+                  </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="d-flex flex-column flex-sm-row gap-3">
+                  <button
+                    type="submit"
+                    class="btn app-btn-primary flex-fill"
+                    id="generateBtn"
+                    disabled
+                  >
+                    <i class="fa-solid fa-wand-magic-sparkles me-2"></i>
+                    <span>Generate QR Code</span>
+                  </button>
                   <button
                     type="button"
-                    class="clear-btn"
-                    id="clearBtn"
-                    aria-label="Clear input"
+                    class="btn app-btn-outline flex-fill"
+                    id="resetBtn"
                   >
-                    <i class="fa-solid fa-xmark"></i>
+                    <i class="fa-solid fa-rotate-left me-2"></i>
+                    <span>Reset</span>
                   </button>
                 </div>
-                <div class="input-hint" id="urlHint">
-                  Include http:// or https://
-                </div>
-              </div>
-
-              <!-- Dimensions -->
-              <div class="row g-3 mb-4">
-                <div class="col-6">
-                  <label
-                    for="widthInput"
-                    class="form-label app-label"
-                    >Width (px)</label
-                  >
-                  <input
-                    type="number"
-                    class="form-control app-input"
-                    id="widthInput"
-                    value="200"
-                    min="80"
-                    max="1000"
-                    step="10"
-                  />
-                </div>
-                <div class="col-6">
-                  <label
-                    for="heightInput"
-                    class="form-label app-label"
-                    >Height (px)</label
-                  >
-                  <input
-                    type="number"
-                    class="form-control app-input"
-                    id="heightInput"
-                    value="200"
-                    min="80"
-                    max="1000"
-                    step="10"
-                  />
-                </div>
-              </div>
-
-              <!-- Action Buttons -->
-              <div class="d-flex flex-column flex-sm-row gap-3">
-                <button
-                  type="button"
-                  class="btn app-btn-primary flex-fill"
-                  id="generateBtn"
-                  disabled
-                >
-                  <i class="fa-solid fa-wand-magic-sparkles me-2"></i>
-                  <span>Generate QR Code</span>
-                </button>
-                <button
-                  type="button"
-                  class="btn app-btn-outline flex-fill"
-                  id="resetBtn"
-                >
-                  <i class="fa-solid fa-rotate-left me-2"></i>
-                  <span>Reset</span>
-                </button>
-              </div>
+              </form>
             </div>
           </div>
 
@@ -192,7 +180,7 @@
                   </p>
                 </div>
 
-                <!-- Generated Badge (built by JS, hidden until generated) -->
+                <!-- Generated Badge -->
                 <div class="qr-badge d-none" id="qrBadge">
                   <span class="qr-badge-pill">SCAN ME</span>
                   <div class="qr-badge-inner" id="qrCodeCanvas"></div>
