@@ -48,7 +48,8 @@ a {
   text-decoration: none;
 }
 
-/* Navbar */
+/* NAVBAR & TOGGLER */
+
 .app-navbar {
   background: var(--bg-main);
   border-bottom: 1px solid var(--border-primary);
@@ -104,7 +105,6 @@ a {
   transform: scale(1.05);
 }
 
-/* Navbar Toggler Improvements */
 .navbar-toggler {
   padding: 0.4rem 0.6rem;
   border: 1px solid var(--border-primary);
@@ -118,15 +118,18 @@ a {
   box-shadow: none;
 }
 
+.navbar-toggler-icon {
+  filter: contrast(0.5);
+}
+
 [data-theme="dark"] .navbar-toggler {
   border-color: var(--border-primary);
   background-color: var(--bg-card);
   color: var(--text-main);
 }
 
-/* تعديل لون أيقونة الهامبرجر الخاصة بـ Bootstrap للـ Dark Mode */
 [data-theme="dark"] .navbar-toggler-icon {
-  filter: invert(1) brightness(1.5);
+  filter: invert(1) brightness(2);
 }
 
 /* BUTTONS */
@@ -184,6 +187,7 @@ a {
 }
 
 /* Outline Button (Reset Button) */
+
 .app-btn-outline {
   background: var(--bg-main);
   color: var(--text-main);
@@ -224,7 +228,8 @@ a {
   font-size: 0.9rem;
 }
 
-/* Hero */
+/* HERO */
+
 .app-main {
   padding: 2.5rem 0 4rem;
 }
@@ -247,7 +252,7 @@ a {
   margin-bottom: 0;
 }
 
-/* Cards */
+/* CARDS & INPUTS */
 
 .app-card {
   background: var(--bg-card);
@@ -289,12 +294,12 @@ a {
 /* Placeholder visibility enhancements */
 .app-input::placeholder {
   color: var(--text-muted);
-  opacity: 0.7;
+  opacity: 0.75;
 }
 
 [data-theme="dark"] .app-input::placeholder {
   color: var(--text-muted);
-  opacity: 0.8;
+  opacity: 0.85;
 }
 
 /* URL input with icon + clear button */
@@ -345,7 +350,7 @@ a {
   margin-top: 0.4rem;
 }
 
-/* PREVIEW STAGE */
+/* PREVIEW STAGE & QR BADGE */
 
 .preview-stage {
   min-height: 340px;
@@ -423,6 +428,7 @@ a {
   width: auto;
 }
 
+/* إظهار عنصر img دائماً ومنع تكراره */
 .qr-badge-inner img {
   display: block !important;
   max-width: 100%;
@@ -431,8 +437,18 @@ a {
   padding: 0.75rem;
 }
 
+/* إخفاء الـ canvas افتراضياً عند وجود الـ img */
 .qr-badge-inner canvas {
   display: none !important;
+}
+
+/* إظهار الـ canvas فقط في حال عدم وجود عنصر img يحتوي على رابط صورة */
+.qr-badge-inner:not(:has(img[src])) canvas {
+  display: block !important;
+  max-width: 100%;
+  height: auto;
+  background: #f3f4f6;
+  padding: 0.75rem;
 }
 
 .qr-badge-footer {

@@ -83,10 +83,26 @@ document.addEventListener("DOMContentLoaded", () => {
       correctLevel: QRCode.CorrectLevel.H,
     });
 
+    // إخفاء الكانفاس برمجياً للحد من مشاكل التكرار البصري
+    setTimeout(() => {
+      const img = DOM.qrCodeCanvas.querySelector("img");
+      const canvas = DOM.qrCodeCanvas.querySelector("canvas");
+      if (img && canvas && img.src) {
+        canvas.style.display = "none";
+      }
+    }, 50);
+
     // Update display state
     DOM.previewPlaceholder.classList.add("d-none");
     DOM.qrBadge.classList.remove("d-none");
     DOM.openPdfBtn.disabled = false;
+  }
+
+  function clearUrlInputOnly() {
+    DOM.urlInput.value = "";
+    DOM.clearBtn.classList.remove("visible");
+    DOM.generateBtn.disabled = true;
+    DOM.urlInput.focus();
   }
 
   function resetForm() {
@@ -125,26 +141,22 @@ document.addEventListener("DOMContentLoaded", () => {
       jsPDF: { unit: "in", format: "letter", orientation: "portrait" },
     };
 
+    // التنزيل المباشر يضمن العمل على الموبايل واللابتوب بدون حظر Pop-up
     html2pdf()
       .set(options)
       .from(DOM.qrBadge)
-      .toPdf()
-      .outputPdf("bloburl")
-      .then((pdfUrl) => {
-        window.open(pdfUrl, "_blank");
-      })
+      .save()
       .catch((err) => {
         console.error("Error generating PDF:", err);
       });
   }
 
+  // Event Listeners
   if (DOM.themeToggle) DOM.themeToggle.addEventListener("click", toggleTheme);
-
   if (DOM.urlInput) DOM.urlInput.addEventListener("input", handleUrlInput);
+
   if (DOM.clearBtn) {
-    DOM.clearBtn.addEventListener("click", () => {
-      resetForm();
-    });
+    DOM.clearBtn.addEventListener("click", clearUrlInputOnly);
   }
 
   if (DOM.generateBtn)
