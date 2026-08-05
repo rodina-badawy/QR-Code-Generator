@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>URL to QR Code PDF Generator</title>
+
+<!-- Local Bootstrap 5 -->
+<link rel="stylesheet" href="css/bootstrap.min.css">
+<!-- Local Font Awesome -->
+<link rel="stylesheet" href="css/all.min.css">
+<!-- Google Fonts (English + Arabic) -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet">
+<!-- favicon -->
+ <link rel="shortcut icon" href="favicon.png" type="image/x-icon">
+<!-- App Styles -->
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<!-- ===================== NAVBAR ===================== -->
+<nav class="app-navbar navbar navbar-expand-lg">
+  <div class="container-fluid px-3 px-md-4">
+    <a class="navbar-brand app-brand" href="#">
+      <span class="app-brand-icon"><i class="fa-solid fa-qrcode"></i></span>
+      <span class="app-brand-text" data-i18n="brand">QR Code Generator </span>
+    </a>
+
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navContent" aria-controls="navContent" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" id="navContent">
+      <div class="d-flex flex-column flex-lg-row align-items-lg-center gap-3 gap-lg-4 ms-lg-auto mt-3 mt-lg-0">
+
+
+        <!-- Theme Switcher -->
+        <button type="button" class="theme-toggle" id="themeToggle" aria-label="Toggle dark mode">
+          <i class="fa-solid fa-moon" id="themeIcon"></i>
+        </button>
+
+        <!-- Auth Links -->
+        <div class="auth-links d-flex align-items-center gap-3">
+          <a href="#" class="auth-link" data-i18n="login">Log in</a>
+          <a href="#" class="btn app-btn-primary btn-sm auth-cta" data-i18n="signup">Create account</a>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</nav>
+
+<!-- ===================== MAIN ===================== -->
+<main class="app-main">
+  <div class="container">
+
+    <div class="text-center hero-copy">
+      <h1 class="hero-title" data-i18n="heroTitle">Turn any link into a scannable QR code</h1>
+      <p class="hero-sub" data-i18n="heroSub">Paste a URL, generate a printable QR badge, and download it as a PDF in seconds.</p>
+    </div>
+
+    <div class="row g-4 app-grid">
+
+      <!-- ============ LEFT COLUMN: CONTROLS ============ -->
+      <div class="col-lg-5">
+        <div class="app-card controls-card">
+          <h2 class="card-heading" data-i18n="controlsHeading">1. Enter your details</h2>
+
+          <!-- URL Input -->
+          <div class="mb-3">
+            <label for="urlInput" class="form-label app-label" data-i18n="urlLabel">Destination URL</label>
+            <div class="url-input-wrap">
+              <i class="fa-solid fa-link input-icon"></i>
+              <input type="url" class="form-control app-input url-input" id="urlInput" placeholder="https://example.com" data-i18n-placeholder="urlPlaceholder" autocomplete="off">
+              <button type="button" class="clear-btn" id="clearBtn" aria-label="Clear input">
+                <i class="fa-solid fa-xmark"></i>
+              </button>
+            </div>
+            <div class="input-hint" id="urlHint" data-i18n="urlHint">Include http:// or https://</div>
+          </div>
+
+          <!-- Dimensions -->
+          <div class="row g-3 mb-4">
+            <div class="col-6">
+              <label for="widthInput" class="form-label app-label" data-i18n="widthLabel">Width (px)</label>
+              <input type="number" class="form-control app-input" id="widthInput" value="200" min="80" max="1000" step="10">
+            </div>
+            <div class="col-6">
+              <label for="heightInput" class="form-label app-label" data-i18n="heightLabel">Height (px)</label>
+              <input type="number" class="form-control app-input" id="heightInput" value="200" min="80" max="1000" step="10">
+            </div>
+          </div>
+
+          <!-- Action Buttons -->
+          <div class="d-flex flex-column flex-sm-row gap-3">
+            <button type="button" class="btn app-btn-primary flex-fill" id="generateBtn" disabled>
+              <i class="fa-solid fa-wand-magic-sparkles me-2"></i>
+              <span data-i18n="generateBtn">Generate QR Code</span>
+            </button>
+            <button type="button" class="btn app-btn-outline flex-fill" id="resetBtn">
+              <i class="fa-solid fa-rotate-left me-2"></i>
+              <span data-i18n="resetBtn">Reset</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ============ RIGHT COLUMN: PREVIEW ============ -->
+      <div class="col-lg-7">
+        <div class="app-card preview-card">
+          <h2 class="card-heading" data-i18n="previewHeading">2. Preview &amp; export</h2>
+
+          <div class="preview-stage" id="previewStage">
+
+            <!-- Placeholder State -->
+            <div class="preview-placeholder" id="previewPlaceholder">
+              <div class="placeholder-icon"><i class="fa-solid fa-qrcode"></i></div>
+              <p class="placeholder-text" data-i18n="placeholderText">Please enter a valid URL and click Generate QR Code</p>
+            </div>
+
+            <!-- Generated Badge (built by JS, hidden until generated) -->
+            <div class="qr-badge d-none" id="qrBadge">
+              <span class="qr-badge-pill" data-i18n="scanMe">SCAN ME</span>
+              <div class="qr-badge-inner" id="qrCodeCanvas"></div>
+              <div class="qr-badge-footer">
+                <i class="fa-solid fa-arrow-turn-down-left footer-arrow footer-arrow-left"></i>
+                <span class="qr-badge-footer-text" data-i18n="scanHere">SCAN HERE</span>
+                <i class="fa-solid fa-arrow-turn-down-right footer-arrow footer-arrow-right"></i>
+              </div>
+            </div>
+
+          </div>
+
+          <button type="button" class="btn app-btn-primary w-100 mt-4" id="openPdfBtn" disabled>
+            <i class="fa-solid fa-file-pdf me-2"></i>
+            <span data-i18n="openPdfBtn">Open PDF</span>
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</main>
+
+<!-- ===================== LIBRARIES ===================== -->
+<script src="js/bootstrap.bundle.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>
