@@ -41,7 +41,6 @@ document.addEventListener("DOMContentLoaded", () => {
   function normalizeUrl(rawInput) {
     if (!rawInput) return { valid: false, url: "" };
 
-    // Removal of hidden unicode spaces inserted by mobile keyboards
     let cleaned = rawInput.trim().replace(/[\u200B-\u200D\uFEFF]/g, "");
     if (!cleaned) return { valid: false, url: "" };
 
@@ -51,10 +50,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     try {
       const parsed = new URL(cleaned);
-      // Ensure host contains at least one dot (e.g. domain.com)
-      const isValidHost =
-        parsed.hostname.includes(".") &&
-        parsed.hostname.split(".")[1].length > 0;
+      const isValidHost = parsed.hostname.length > 0;
       return { valid: isValidHost, url: cleaned };
     } catch (_) {
       return { valid: false, url: "" };
@@ -64,29 +60,29 @@ document.addEventListener("DOMContentLoaded", () => {
   // --- 3. INPUT HANDLER ---
   function handleUrlInput() {
     if (!DOM.urlInput) return;
-    const rawValue = DOM.urlInput.value;
+    const rawValue = DOM.urlInput.value.trim();
 
-    if (rawValue.trim().length > 0) {
+    if (rawValue.length > 0) {
       if (DOM.clearBtn) DOM.clearBtn.classList.add("visible");
+      const { valid } = normalizeUrl(rawValue);
+      if (DOM.generateBtn) DOM.generateBtn.disabled = !valid;
     } else {
       if (DOM.clearBtn) DOM.clearBtn.classList.remove("visible");
-    }
-
-    const { valid } = normalizeUrl(rawValue);
-    if (DOM.generateBtn) {
-      DOM.generateBtn.disabled = !valid;
+      if (DOM.generateBtn) DOM.generateBtn.disabled = true;
     }
   }
 
   // --- 4. QR GENERATOR LOGIC ---
-  function generateQRCode() {
+  function generateQRCode(e) {
+    if (e) e.preventDefault(); // منع أي سلوك افتراضي للنماذج
+
     if (!DOM.urlInput) return;
     const rawValue = DOM.urlInput.value;
     const { valid, url } = normalizeUrl(rawValue);
 
     if (!valid) return;
 
-    // Clear previous QR canvas
+    // مسح عنصر الـ Canvas السابق
     if (DOM.qrCodeCanvas) {
       DOM.qrCodeCanvas.innerHTML = "";
     }
@@ -109,7 +105,7 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-    // Safety Polling Mechanism (Max 2 Seconds)
+    // Polling Mechanism للتأكد من بناء الـ QR قبل الإظهار
     let attempts = 0;
     const maxAttempts = 100;
 
@@ -118,9 +114,9 @@ document.addEventListener("DOMContentLoaded", () => {
       const img = DOM.qrCodeCanvas?.querySelector("img");
       const canvas = DOM.qrCodeCanvas?.querySelector("canvas");
 
-      if (img && img.getAttribute("src")) {
-        if (canvas) canvas.style.display = "none";
-        img.style.display = "block";
+      if ((img && img.getAttribute("src")) || canvas) {
+        if (img && canvas) canvas.style.display = "none";
+        if (img) img.style.display = "block";
 
         if (DOM.previewPlaceholder)
           DOM.previewPlaceholder.classList.add("d-none");
@@ -165,7 +161,6 @@ document.addEventListener("DOMContentLoaded", () => {
   function openPdf() {
     if (!DOM.qrBadge || DOM.qrBadge.classList.contains("d-none")) return;
 
-    // فتح نافذة فارغة فوراً لتجنب الحجب من متصفحات الموبايل (Pop-up Blocker)
     const pdfWindow = window.open("", "_blank");
     if (pdfWindow) {
       pdfWindow.document.write("Loading PDF preview...");
@@ -197,11 +192,18 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const clonedBadge = DOM.qrBadge.cloneNode(true);
 
-    // ضمان نقل مصدر صورة الـ QR إلى العنصر المستنسخ بنجاح
+    // نقل صورة الـ QR إلى المكون المستنسخ بنجاح
     const originalImg = DOM.qrCodeCanvas?.querySelector("img");
-    const clonedImg = clonedBadge.querySelector("#qrCodeCanvas img");
-    if (originalImg && clonedImg) {
-      clonedImg.src = originalImg.src;
+    const originalCanvas = DOM.qrCodeCanvas?.querySelector("canvas");
+    const clonedCanvasInner = clonedBadge.querySelector("#qrCodeCanvas");
+
+    if (clonedCanvasInner) {
+      if (originalImg && originalImg.src) {
+        clonedCanvasInner.innerHTML = `<img src="${originalImg.src}" style="display:block; width:100%; height:auto;" />`;
+      } else if (originalCanvas) {
+        const dataUrl = originalCanvas.toDataURL("image/png");
+        clonedCanvasInner.innerHTML = `<img src="${dataUrl}" style="display:block; width:100%; height:auto;" />`;
+      }
     }
 
     container.appendChild(clonedBadge);
@@ -233,17 +235,13 @@ document.addEventListener("DOMContentLoaded", () => {
   if (DOM.qrForm) {
     DOM.qrForm.addEventListener("submit", (e) => {
       e.preventDefault();
-      if (DOM.generateBtn && !DOM.generateBtn.disabled) {
-        generateQRCode();
-      }
+      generateQRCode(e);
     });
   }
 
   if (DOM.urlInput) {
     ["input", "keyup", "change", "paste", "blur", "focus"].forEach((evt) => {
-      DOM.urlInput.addEventListener(evt, () => {
-        setTimeout(handleUrlInput, 10);
-      });
+      DOM.urlInput.addEventListener(evt, handleUrlInput);
     });
   }
 
@@ -252,7 +250,9 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   if (DOM.generateBtn) {
-    DOM.generateBtn.addEventListener("click", generateQRCode);
+    DOM.generateBtn.addEventListener("click", (e) => {
+      generateQRCode(e);
+    });
   }
 
   if (DOM.resetBtn) {
