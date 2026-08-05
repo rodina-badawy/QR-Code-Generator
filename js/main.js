@@ -1,12 +1,4 @@
-/**
- * QR Forge - Main Application Logic
- * Senior JavaScript implementation - English Only Version
- */
-
 document.addEventListener("DOMContentLoaded", () => {
-  // ==================================================
-  // 1. DOM SELECTORS & STATE MANAGEMENT
-  // ==================================================
   const DOM = {
     html: document.documentElement,
     themeToggle: document.getElementById("themeToggle"),
@@ -28,9 +20,6 @@ document.addEventListener("DOMContentLoaded", () => {
     qrInstance: null,
   };
 
-  // ==================================================
-  // 2. DARK / LIGHT THEME TOGGLE
-  // ==================================================
   function toggleTheme() {
     state.currentTheme = state.currentTheme === "light" ? "dark" : "light";
     DOM.html.setAttribute("data-theme", state.currentTheme);
@@ -46,9 +35,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // ==================================================
-  // 3. INPUT VALIDATION & CLEAR BUTTON
-  // ==================================================
   function isValidUrl(string) {
     if (!string) return false;
     const trimmed = string.trim();
@@ -66,26 +52,20 @@ document.addEventListener("DOMContentLoaded", () => {
   function handleUrlInput() {
     const value = DOM.urlInput.value.trim();
 
-    // Toggle clear button visibility
     if (value.length > 0) {
       DOM.clearBtn.classList.add("visible");
     } else {
       DOM.clearBtn.classList.remove("visible");
     }
 
-    // Validate syntax and enable/disable generate button
     const valid = isValidUrl(value);
     DOM.generateBtn.disabled = !valid;
   }
 
-  // ==================================================
-  // 4. GENERATE QR CODE LOGIC
-  // ==================================================
   function generateQRCode() {
     const url = DOM.urlInput.value.trim();
     if (!isValidUrl(url)) return;
 
-    // Clear existing canvas content and previous instance reference
     DOM.qrCodeCanvas.innerHTML = "";
     state.qrInstance = null;
 
@@ -109,9 +89,6 @@ document.addEventListener("DOMContentLoaded", () => {
     DOM.openPdfBtn.disabled = false;
   }
 
-  // ==================================================
-  // 5. RESET FUNCTIONALITY
-  // ==================================================
   function resetForm() {
     DOM.urlInput.value = "";
     DOM.clearBtn.classList.remove("visible");
@@ -129,9 +106,6 @@ document.addEventListener("DOMContentLoaded", () => {
     DOM.heightInput.value = 200;
   }
 
-  // ==================================================
-  // 6. PDF GENERATION (html2pdf.js)
-  // ==================================================
   function openPdf() {
     if (!DOM.qrBadge || DOM.qrBadge.classList.contains("d-none")) return;
 
@@ -164,9 +138,6 @@ document.addEventListener("DOMContentLoaded", () => {
       });
   }
 
-  // ==================================================
-  // EVENT LISTENERS BINDING
-  // ==================================================
   if (DOM.themeToggle) DOM.themeToggle.addEventListener("click", toggleTheme);
 
   if (DOM.urlInput) DOM.urlInput.addEventListener("input", handleUrlInput);
@@ -180,9 +151,4 @@ document.addEventListener("DOMContentLoaded", () => {
     DOM.generateBtn.addEventListener("click", generateQRCode);
   if (DOM.resetBtn) DOM.resetBtn.addEventListener("click", resetForm);
   if (DOM.openPdfBtn) DOM.openPdfBtn.addEventListener("click", openPdf);
-
-  // Initial setup (Fixed to English LTR)
-  DOM.html.setAttribute("lang", "en");
-  DOM.html.setAttribute("dir", "ltr");
-  DOM.html.setAttribute("data-theme", "light");
 });
