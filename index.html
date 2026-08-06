@@ -54,7 +54,9 @@
         </div>
 
         <div class="collapse navbar-collapse flex-grow-0" id="navContent">
-          <div class="auth-container d-flex flex-column flex-lg-row align-items-stretch align-items-lg-center gap-2 mt-3 mt-lg-0 pt-3 pt-lg-0">
+          <div
+            class="auth-container d-flex flex-column flex-lg-row align-items-stretch align-items-lg-center gap-2 mt-3 mt-lg-0 pt-3 pt-lg-0"
+          >
             <a href="#" class="btn app-btn-secondary auth-link">Log in</a>
             <a href="#" class="btn app-btn-primary auth-cta">Create account</a>
           </div>
@@ -66,11 +68,10 @@
     <main class="app-main">
       <div class="container">
         <div class="text-center hero-copy">
-          <h1 class="hero-title">
-            Turn any link into a scannable QR code
-          </h1>
+          <h1 class="hero-title">Turn any link into a scannable QR code</h1>
           <p class="hero-sub">
-            Paste a URL, generate a printable QR badge, and download it as a PDF in seconds.
+            Paste a URL, generate a printable QR badge, and download it as a PDF
+            in seconds.
           </p>
         </div>
 
@@ -78,14 +79,14 @@
           <!-- ============ LEFT COLUMN: CONTROLS ============ -->
           <div class="col-lg-5">
             <div class="app-card controls-card">
-              <h2 class="card-heading">
-                1. Enter your details
-              </h2>
+              <h2 class="card-heading">1. Enter your details</h2>
 
               <form id="qrForm" onsubmit="return false;">
                 <!-- URL Input -->
                 <div class="mb-3">
-                  <label for="urlInput" class="form-label app-label">Destination URL</label>
+                  <label for="urlInput" class="form-label app-label"
+                    >Destination URL</label
+                  >
                   <div class="url-input-wrap">
                     <i class="fa-solid fa-link input-icon"></i>
                     <input
@@ -113,7 +114,9 @@
                 <!-- Dimensions -->
                 <div class="row g-3 mb-4">
                   <div class="col-6">
-                    <label for="widthInput" class="form-label app-label">Width (px)</label>
+                    <label for="widthInput" class="form-label app-label"
+                      >Width (px)</label
+                    >
                     <input
                       type="number"
                       class="form-control app-input"
@@ -125,7 +128,9 @@
                     />
                   </div>
                   <div class="col-6">
-                    <label for="heightInput" class="form-label app-label">Height (px)</label>
+                    <label for="heightInput" class="form-label app-label"
+                      >Height (px)</label
+                    >
                     <input
                       type="number"
                       class="form-control app-input"
@@ -165,9 +170,7 @@
           <!-- ============ RIGHT COLUMN: PREVIEW ============ -->
           <div class="col-lg-7">
             <div class="app-card preview-card">
-              <h2 class="card-heading">
-                2. Preview &amp; export
-              </h2>
+              <h2 class="card-heading">2. Preview &amp; export</h2>
 
               <div class="preview-stage" id="previewStage">
                 <!-- Placeholder State -->
@@ -207,11 +210,9 @@
 
     <!-- ===================== LIBRARIES ===================== -->
     <script src="js/bootstrap.bundle.min.js"></script>
-    
-    <!-- CDN للمكتبات الجديدة -->
-    <script src="https://cdn.jsdelivr.net/npm/qr-code-styling@1.5.0/lib/qr-code-styling.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="js/qr-code-styling.js"></script>
+    <script src="js/html2canvas.min.js"></script>
+    <script src="js/jspdf.umd.min.js"></script>
 
     <!-- App Script -->
     <script src="js/main.js"></script>

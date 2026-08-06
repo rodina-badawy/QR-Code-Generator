@@ -434,7 +434,7 @@ a {
   margin-top: -1px;
 }
 
-/* التعديلات الجوهرية الخاصة بعرض الـ QR على الموبايل والـ Canvas */
+
 #qrCodeCanvas {
   display: flex !important;
   align-items: center;
@@ -475,7 +475,7 @@ a {
   font-weight: 900;
   font-size: 1.35rem;
   letter-spacing: 0.05em;
-  color: #111827; /* ثابت باللون الداكن للوضوح عند طباعة وتصدير الـ PDF */
+  color: #111827; 
   text-transform: uppercase;
   text-align: center;
 }

@@ -90,7 +90,6 @@ document.addEventListener("DOMContentLoaded", () => {
     const height = parseInt(DOM.heightInput?.value, 10) || 200;
 
     try {
-      // استخدام مكتبة QRCodeStyling الحديثة
       state.qrCode = new QRCodeStyling({
         width: width,
         height: height,
@@ -113,10 +112,8 @@ document.addEventListener("DOMContentLoaded", () => {
         },
       });
 
-      // إلحاق عنصر الـ QR بالـ DOM
       state.qrCode.append(DOM.qrCodeCanvas);
 
-      // إظهار البادج وتفعيل زر تصدير ה-PDF
       if (DOM.previewPlaceholder)
         DOM.previewPlaceholder.classList.add("d-none");
       if (DOM.qrBadge) DOM.qrBadge.classList.remove("d-none");
@@ -158,7 +155,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (DOM.openPdfBtn) DOM.openPdfBtn.disabled = true;
 
-    // فتح تبويب جديد فوراً لمنع الـ Pop-up Blocker
     const pdfWindow = window.open("", "_blank");
     if (pdfWindow) {
       pdfWindow.document.write(`
@@ -178,9 +174,8 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     try {
-      // 1. التقاط عنصر البادج باستخدام html2canvas
       const canvas = await html2canvas(DOM.qrBadge, {
-        scale: 3, // دقة عالية للطباعة
+        scale: 3, 
         useCORS: true,
         allowTaint: true,
         logging: false,
@@ -189,7 +184,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
       const imgData = canvas.toDataURL("image/png");
 
-      // 2. إنشاء مستند PDF جديد بواسطة jsPDF
       const { jsPDF } = window.jspdf;
       const pdf = new jsPDF({
         orientation: "portrait",
@@ -200,11 +194,10 @@ document.addEventListener("DOMContentLoaded", () => {
       const pageWidth = pdf.internal.pageSize.getWidth();
       const pageHeight = pdf.internal.pageSize.getHeight();
 
-      // حساب أبعاد الصورة لتتوسط صفحة الـ PDF
       const imgWidth = canvas.width;
       const imgHeight = canvas.height;
 
-      // ضبط الحجم الأقصى داخل صفحة الـ PDF
+
       const maxPdfWidth = pageWidth * 0.7;
       const ratio = Math.min(maxPdfWidth / imgWidth, pageHeight / imgHeight);
 
@@ -216,7 +209,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
       pdf.addImage(imgData, "PNG", xPos, yPos, printWidth, printHeight);
 
-      // 3. تحويل الـ PDF لـ Blob وعرضه في النافذة الجديدة
       const blob = pdf.output("blob");
       const pdfUrl = URL.createObjectURL(blob);
 
