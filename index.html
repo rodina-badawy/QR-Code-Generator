@@ -18,6 +18,13 @@
     />
     <!-- Favicon -->
     <link rel="shortcut icon" href="favicon.png" type="image/x-icon" />
+    <!--  -->
+    <script>
+    (function() {
+      const savedTheme = localStorage.getItem("app_theme") || "light";
+      document.documentElement.setAttribute("data-theme", savedTheme);
+    })();
+  </script>
     <!-- App Styles -->
     <link rel="stylesheet" href="css/style.css" />
   </head>

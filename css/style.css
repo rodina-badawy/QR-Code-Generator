@@ -38,9 +38,6 @@ body {
   font-family: "Plus Jakarta Sans", sans-serif;
   background: var(--bg-main);
   color: var(--text-main);
-  transition:
-    background 0.25s ease,
-    color 0.25s ease;
   min-height: 100vh;
 }
 
@@ -434,7 +431,6 @@ a {
   margin-top: -1px;
 }
 
-
 #qrCodeCanvas {
   display: flex !important;
   align-items: center;
@@ -510,4 +506,19 @@ a {
     width: 100%;
     display: block;
   }
+}
+
+/* SMOOTH THEME TRANSITION (PREVENTS FLICKER) */
+
+body, 
+.app-navbar, 
+.app-card, 
+.app-input, 
+.theme-toggle, 
+.preview-stage,
+.app-btn-outline,
+.app-btn-secondary {
+  transition: background-color 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+              color 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+              border-color 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
 }

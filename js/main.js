@@ -17,17 +17,18 @@ document.addEventListener("DOMContentLoaded", () => {
   };
 
   const state = {
-    currentTheme: "light",
+    currentTheme: localStorage.getItem("app_theme") || "light",
     qrCode: null,
   };
 
-  // --- 1. THEME LOGIC ---
-  function toggleTheme() {
-    state.currentTheme = state.currentTheme === "light" ? "dark" : "light";
-    DOM.html.setAttribute("data-theme", state.currentTheme);
+  // --- 1. THEME LOGIC WITH LOCALSTORAGE & SMOOTH ICON UPDATE ---
+  function applyTheme(theme) {
+    state.currentTheme = theme;
+    DOM.html.setAttribute("data-theme", theme);
+    localStorage.setItem("app_theme", theme);
 
     if (DOM.themeIcon) {
-      if (state.currentTheme === "dark") {
+      if (theme === "dark") {
         DOM.themeIcon.classList.remove("fa-moon");
         DOM.themeIcon.classList.add("fa-sun");
       } else {
@@ -35,6 +36,11 @@ document.addEventListener("DOMContentLoaded", () => {
         DOM.themeIcon.classList.add("fa-moon");
       }
     }
+  }
+
+  function toggleTheme() {
+    const nextTheme = state.currentTheme === "light" ? "dark" : "light";
+    applyTheme(nextTheme);
   }
 
   // --- 2. URL VALIDATION & NORMALIZATION ---
@@ -57,10 +63,13 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // --- 3. INPUT HANDLER ---
+  // --- 3. INPUT HANDLER & LOCALSTORAGE FOR FORM ---
   function handleUrlInput() {
     if (!DOM.urlInput) return;
     const rawValue = DOM.urlInput.value.trim();
+
+
+    localStorage.setItem("app_url_input", DOM.urlInput.value);
 
     if (rawValue.length > 0) {
       if (DOM.clearBtn) DOM.clearBtn.classList.add("visible");
@@ -72,7 +81,14 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // --- 4. QR GENERATOR LOGIC (USING QR-CODE-STYLING) ---
+  function handleDimensionsInput() {
+    if (DOM.widthInput)
+      localStorage.setItem("app_qr_width", DOM.widthInput.value);
+    if (DOM.heightInput)
+      localStorage.setItem("app_qr_height", DOM.heightInput.value);
+  }
+
+  // --- 4. QR GENERATOR LOGIC ---
   function generateQRCode(e) {
     if (e) e.preventDefault();
 
@@ -118,15 +134,19 @@ document.addEventListener("DOMContentLoaded", () => {
         DOM.previewPlaceholder.classList.add("d-none");
       if (DOM.qrBadge) DOM.qrBadge.classList.remove("d-none");
       if (DOM.openPdfBtn) DOM.openPdfBtn.disabled = false;
+
+
+      localStorage.setItem("app_qr_generated", "true");
     } catch (err) {
       console.error("QRCode Generation Error:", err);
     }
   }
 
-  // --- 5. FORM ACTIONS ---
+  // --- 5. FORM ACTIONS & RESET ---
   function clearUrlInputOnly() {
     if (!DOM.urlInput) return;
     DOM.urlInput.value = "";
+    localStorage.removeItem("app_url_input");
     if (DOM.clearBtn) DOM.clearBtn.classList.remove("visible");
     if (DOM.generateBtn) DOM.generateBtn.disabled = true;
     DOM.urlInput.focus();
@@ -147,9 +167,38 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (DOM.widthInput) DOM.widthInput.value = 200;
     if (DOM.heightInput) DOM.heightInput.value = 200;
+
+
+    localStorage.removeItem("app_url_input");
+    localStorage.removeItem("app_qr_width");
+    localStorage.removeItem("app_qr_height");
+    localStorage.removeItem("app_qr_generated");
   }
 
-  // --- 6. PDF EXPORT LOGIC (HTML2CANVAS + JSPDF) ---
+  // --- 6. RESTORE SAVED STATE ON LOAD ---
+  function restoreSavedState() {
+    applyTheme(state.currentTheme);
+
+    //  استرجاع بيانات المدخلات
+    const savedUrl = localStorage.getItem("app_url_input");
+    const savedWidth = localStorage.getItem("app_qr_width");
+    const savedHeight = localStorage.getItem("app_qr_height");
+    const wasGenerated = localStorage.getItem("app_qr_generated") === "true";
+
+    if (savedUrl && DOM.urlInput) {
+      DOM.urlInput.value = savedUrl;
+      handleUrlInput();
+    }
+
+    if (savedWidth && DOM.widthInput) DOM.widthInput.value = savedWidth;
+    if (savedHeight && DOM.heightInput) DOM.heightInput.value = savedHeight;
+
+    if (wasGenerated && savedUrl) {
+      generateQRCode();
+    }
+  }
+
+  // --- 7. PDF EXPORT LOGIC ---
   async function openPdf() {
     if (!DOM.qrBadge || DOM.qrBadge.classList.contains("d-none")) return;
 
@@ -175,7 +224,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     try {
       const canvas = await html2canvas(DOM.qrBadge, {
-        scale: 3, 
+        scale: 3,
         useCORS: true,
         allowTaint: true,
         logging: false,
@@ -183,7 +232,6 @@ document.addEventListener("DOMContentLoaded", () => {
       });
 
       const imgData = canvas.toDataURL("image/png");
-
       const { jsPDF } = window.jspdf;
       const pdf = new jsPDF({
         orientation: "portrait",
@@ -196,8 +244,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
       const imgWidth = canvas.width;
       const imgHeight = canvas.height;
-
-
       const maxPdfWidth = pageWidth * 0.7;
       const ratio = Math.min(maxPdfWidth / imgWidth, pageHeight / imgHeight);
 
@@ -225,10 +271,8 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // --- 7. EVENT BINDINGS ---
-  if (DOM.themeToggle) {
-    DOM.themeToggle.addEventListener("click", toggleTheme);
-  }
+  // --- 8. EVENT BINDINGS & INIT ---
+  if (DOM.themeToggle) DOM.themeToggle.addEventListener("click", toggleTheme);
 
   if (DOM.qrForm) {
     DOM.qrForm.addEventListener("submit", (e) => {
@@ -243,21 +287,17 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  if (DOM.clearBtn) {
-    DOM.clearBtn.addEventListener("click", clearUrlInputOnly);
-  }
+  if (DOM.widthInput)
+    DOM.widthInput.addEventListener("input", handleDimensionsInput);
+  if (DOM.heightInput)
+    DOM.heightInput.addEventListener("input", handleDimensionsInput);
 
-  if (DOM.generateBtn) {
-    DOM.generateBtn.addEventListener("click", (e) => {
-      generateQRCode(e);
-    });
-  }
+  if (DOM.clearBtn) DOM.clearBtn.addEventListener("click", clearUrlInputOnly);
+  if (DOM.generateBtn)
+    DOM.generateBtn.addEventListener("click", (e) => generateQRCode(e));
+  if (DOM.resetBtn) DOM.resetBtn.addEventListener("click", resetForm);
+  if (DOM.openPdfBtn) DOM.openPdfBtn.addEventListener("click", openPdf);
 
-  if (DOM.resetBtn) {
-    DOM.resetBtn.addEventListener("click", resetForm);
-  }
 
-  if (DOM.openPdfBtn) {
-    DOM.openPdfBtn.addEventListener("click", openPdf);
-  }
+  restoreSavedState();
 });
