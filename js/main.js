@@ -18,7 +18,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const state = {
     currentTheme: "light",
-    qrInstance: null,
+    qrCode: null,
   };
 
   // --- 1. THEME LOGIC ---
@@ -72,9 +72,9 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // --- 4. QR GENERATOR LOGIC ---
+  // --- 4. QR GENERATOR LOGIC (USING QR-CODE-STYLING) ---
   function generateQRCode(e) {
-    if (e) e.preventDefault(); 
+    if (e) e.preventDefault();
 
     if (!DOM.urlInput) return;
     const rawValue = DOM.urlInput.value;
@@ -82,52 +82,48 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (!valid) return;
 
-
     if (DOM.qrCodeCanvas) {
       DOM.qrCodeCanvas.innerHTML = "";
     }
-    state.qrInstance = null;
 
     const width = parseInt(DOM.widthInput?.value, 10) || 200;
     const height = parseInt(DOM.heightInput?.value, 10) || 200;
 
     try {
-      state.qrInstance = new QRCode(DOM.qrCodeCanvas, {
-        text: url,
+      // استخدام مكتبة QRCodeStyling الحديثة
+      state.qrCode = new QRCodeStyling({
         width: width,
         height: height,
-        colorDark: "#111827",
-        colorLight: "#ffffff",
-        correctLevel: QRCode.CorrectLevel.H,
+        type: "canvas",
+        data: url,
+        dotsOptions: {
+          color: "#111827",
+          type: "square",
+        },
+        backgroundOptions: {
+          color: "#ffffff",
+        },
+        cornersSquareOptions: {
+          color: "#111827",
+          type: "square",
+        },
+        cornersDotOptions: {
+          color: "#111827",
+          type: "square",
+        },
       });
+
+      // إلحاق عنصر الـ QR بالـ DOM
+      state.qrCode.append(DOM.qrCodeCanvas);
+
+      // إظهار البادج وتفعيل زر تصدير ה-PDF
+      if (DOM.previewPlaceholder)
+        DOM.previewPlaceholder.classList.add("d-none");
+      if (DOM.qrBadge) DOM.qrBadge.classList.remove("d-none");
+      if (DOM.openPdfBtn) DOM.openPdfBtn.disabled = false;
     } catch (err) {
       console.error("QRCode Generation Error:", err);
-      return;
     }
-
-    let attempts = 0;
-    const maxAttempts = 100;
-
-    const checkImageReady = setInterval(() => {
-      attempts++;
-      const img = DOM.qrCodeCanvas?.querySelector("img");
-      const canvas = DOM.qrCodeCanvas?.querySelector("canvas");
-
-      if ((img && img.getAttribute("src")) || canvas) {
-        if (img && canvas) canvas.style.display = "none";
-        if (img) img.style.display = "block";
-
-        if (DOM.previewPlaceholder)
-          DOM.previewPlaceholder.classList.add("d-none");
-        if (DOM.qrBadge) DOM.qrBadge.classList.remove("d-none");
-        if (DOM.openPdfBtn) DOM.openPdfBtn.disabled = false;
-
-        clearInterval(checkImageReady);
-      } else if (attempts >= maxAttempts) {
-        clearInterval(checkImageReady);
-        console.warn("QR code generation timed out.");
-      }
-    }, 20);
   }
 
   // --- 5. FORM ACTIONS ---
@@ -150,79 +146,91 @@ document.addEventListener("DOMContentLoaded", () => {
       DOM.previewPlaceholder.classList.remove("d-none");
 
     if (DOM.qrCodeCanvas) DOM.qrCodeCanvas.innerHTML = "";
-    state.qrInstance = null;
+    state.qrCode = null;
 
     if (DOM.widthInput) DOM.widthInput.value = 200;
     if (DOM.heightInput) DOM.heightInput.value = 200;
   }
 
-  // --- 6. PDF EXPORT LOGIC ---
-  function openPdf() {
+  // --- 6. PDF EXPORT LOGIC (HTML2CANVAS + JSPDF) ---
+  async function openPdf() {
     if (!DOM.qrBadge || DOM.qrBadge.classList.contains("d-none")) return;
 
+    if (DOM.openPdfBtn) DOM.openPdfBtn.disabled = true;
+
+    // فتح تبويب جديد فوراً لمنع الـ Pop-up Blocker
     const pdfWindow = window.open("", "_blank");
     if (pdfWindow) {
-      pdfWindow.document.write("Loading PDF preview...");
+      pdfWindow.document.write(`
+        <html lang="en">
+          <head>
+            <title>Generating PDF...</title>
+            <style>
+              body { font-family: system-ui, sans-serif; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; background: #f8fafc; color: #334155; }
+              .loader { font-size: 1.1rem; font-weight: 600; }
+            </style>
+          </head>
+          <body>
+            <div class="loader">Generating your PDF badge, please wait...</div>
+          </body>
+        </html>
+      `);
     }
 
-    const options = {
-      margin: [0.5, 0.5, 0.5, 0.5],
-      filename: "qr-badge.pdf",
-      image: { type: "jpeg", quality: 0.98 },
-      html2canvas: {
-        scale: 3,
+    try {
+      // 1. التقاط عنصر البادج باستخدام html2canvas
+      const canvas = await html2canvas(DOM.qrBadge, {
+        scale: 3, // دقة عالية للطباعة
         useCORS: true,
         allowTaint: true,
         logging: false,
         backgroundColor: "#ffffff",
-        scrollX: 0,
-        scrollY: 0,
-      },
-      jsPDF: { unit: "in", format: "letter", orientation: "portrait" },
-    };
-
-    const container = document.createElement("div");
-    container.style.width = "100%";
-    container.style.display = "flex";
-    container.style.justifyContent = "center";
-    container.style.alignItems = "center";
-    container.style.paddingTop = "40px";
-    container.style.backgroundColor = "#ffffff";
-
-    const clonedBadge = DOM.qrBadge.cloneNode(true);
-
-    const originalImg = DOM.qrCodeCanvas?.querySelector("img");
-    const originalCanvas = DOM.qrCodeCanvas?.querySelector("canvas");
-    const clonedCanvasInner = clonedBadge.querySelector("#qrCodeCanvas");
-
-    if (clonedCanvasInner) {
-      if (originalImg && originalImg.src) {
-        clonedCanvasInner.innerHTML = `<img src="${originalImg.src}" style="display:block; width:100%; height:auto;" />`;
-      } else if (originalCanvas) {
-        const dataUrl = originalCanvas.toDataURL("image/png");
-        clonedCanvasInner.innerHTML = `<img src="${dataUrl}" style="display:block; width:100%; height:auto;" />`;
-      }
-    }
-
-    container.appendChild(clonedBadge);
-
-    html2pdf()
-      .set(options)
-      .from(container)
-      .toPdf()
-      .output("blob")
-      .then((blob) => {
-        const pdfUrl = URL.createObjectURL(blob);
-        if (pdfWindow) {
-          pdfWindow.location.href = pdfUrl;
-        } else {
-          window.location.href = pdfUrl;
-        }
-      })
-      .catch((err) => {
-        console.error("Error generating PDF preview:", err);
-        if (pdfWindow) pdfWindow.close();
       });
+
+      const imgData = canvas.toDataURL("image/png");
+
+      // 2. إنشاء مستند PDF جديد بواسطة jsPDF
+      const { jsPDF } = window.jspdf;
+      const pdf = new jsPDF({
+        orientation: "portrait",
+        unit: "pt",
+        format: "a4",
+      });
+
+      const pageWidth = pdf.internal.pageSize.getWidth();
+      const pageHeight = pdf.internal.pageSize.getHeight();
+
+      // حساب أبعاد الصورة لتتوسط صفحة الـ PDF
+      const imgWidth = canvas.width;
+      const imgHeight = canvas.height;
+
+      // ضبط الحجم الأقصى داخل صفحة الـ PDF
+      const maxPdfWidth = pageWidth * 0.7;
+      const ratio = Math.min(maxPdfWidth / imgWidth, pageHeight / imgHeight);
+
+      const printWidth = imgWidth * ratio;
+      const printHeight = imgHeight * ratio;
+
+      const xPos = (pageWidth - printWidth) / 2;
+      const yPos = (pageHeight - printHeight) / 2;
+
+      pdf.addImage(imgData, "PNG", xPos, yPos, printWidth, printHeight);
+
+      // 3. تحويل الـ PDF لـ Blob وعرضه في النافذة الجديدة
+      const blob = pdf.output("blob");
+      const pdfUrl = URL.createObjectURL(blob);
+
+      if (pdfWindow) {
+        pdfWindow.location.href = pdfUrl;
+      } else {
+        window.location.href = pdfUrl;
+      }
+    } catch (err) {
+      console.error("Error generating PDF preview:", err);
+      if (pdfWindow) pdfWindow.close();
+    } finally {
+      if (DOM.openPdfBtn) DOM.openPdfBtn.disabled = false;
+    }
   }
 
   // --- 7. EVENT BINDINGS ---
