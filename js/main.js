@@ -265,27 +265,13 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     try {
+      const isDarkMode = state.currentTheme === "dark";
       const canvas = await html2canvas(DOM.qrBadge, {
         scale: 3,
         useCORS: true,
         allowTaint: true,
         logging: false,
-        backgroundColor: "#ffffff",
-        onclone: (clonedDoc) => {
-          clonedDoc.documentElement.setAttribute("data-theme", "light");
-          const clonedBadgeInner = clonedDoc.querySelector(".qr-badge-inner");
-          const clonedFooterText = clonedDoc.querySelector(
-            ".qr-badge-footer-text",
-          );
-
-          if (clonedBadgeInner) {
-            clonedBadgeInner.style.borderColor = "#111827";
-            clonedBadgeInner.style.backgroundColor = "#ffffff";
-          }
-          if (clonedFooterText) {
-            clonedFooterText.style.color = "#111827";
-          }
-        },
+        backgroundColor: isDarkMode ? "#141a28" : "#ffffff",
       });
 
       const imgData = canvas.toDataURL("image/png");
