@@ -96,6 +96,7 @@ document.addEventListener("DOMContentLoaded", () => {
       if (valid) {
         hideError();
         if (DOM.generateBtn) DOM.generateBtn.disabled = false;
+        // التحديث التلقائي للإنشاء المعاين في حال عدم وجود زر إنشاء مستقل
         if (!DOM.generateBtn) generateQRCode();
       } else {
         showError(error || "Please enter a valid URL");
@@ -173,6 +174,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const height = parseInt(DOM.heightInput?.value, 10) || width;
 
     try {
+      // دعم مكتبة QRCodeStyling أو مكتبة QRCode التقليدية
       if (typeof QRCodeStyling !== "undefined") {
         state.qrCode = new QRCodeStyling({
           width: width,
@@ -248,8 +250,6 @@ document.addEventListener("DOMContentLoaded", () => {
     localStorage.removeItem("app_qr_width");
     localStorage.removeItem("app_qr_height");
     localStorage.removeItem("app_qr_generated");
-
-    updateBadgeTexts();
   }
 
   // --- 6. RESTORE SAVED STATE ON LOAD ---
@@ -267,8 +267,6 @@ document.addEventListener("DOMContentLoaded", () => {
     if (savedHeight && DOM.heightInput) DOM.heightInput.value = savedHeight;
     if (savedTop && DOM.topText) DOM.topText.value = savedTop;
     if (savedBottom && DOM.bottomText) DOM.bottomText.value = savedBottom;
-
-    updateBadgeTexts();
 
     if (savedUrl && DOM.urlInput) {
       DOM.urlInput.value = savedUrl;
@@ -392,29 +390,14 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  if (DOM.topText) {
-    ["input", "keyup", "change"].forEach((evt) => {
-      DOM.topText.addEventListener(evt, updateBadgeTexts);
-    });
-  }
+  if (DOM.topText) DOM.topText.addEventListener("input", updateBadgeTexts);
+  if (DOM.bottomText)
+    DOM.bottomText.addEventListener("input", updateBadgeTexts);
 
-  if (DOM.bottomText) {
-    ["input", "keyup", "change"].forEach((evt) => {
-      DOM.bottomText.addEventListener(evt, updateBadgeTexts);
-    });
-  }
-
-  if (DOM.widthInput) {
-    ["input", "change"].forEach((evt) => {
-      DOM.widthInput.addEventListener(evt, handleDimensionsInput);
-    });
-  }
-
-  if (DOM.heightInput) {
-    ["input", "change"].forEach((evt) => {
-      DOM.heightInput.addEventListener(evt, handleDimensionsInput);
-    });
-  }
+  if (DOM.widthInput)
+    DOM.widthInput.addEventListener("input", handleDimensionsInput);
+  if (DOM.heightInput)
+    DOM.heightInput.addEventListener("input", handleDimensionsInput);
 
   if (DOM.clearBtn) DOM.clearBtn.addEventListener("click", clearUrlInputOnly);
   if (DOM.generateBtn)
