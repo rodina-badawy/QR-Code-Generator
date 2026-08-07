@@ -1,16 +1,12 @@
 document.addEventListener("DOMContentLoaded", () => {
   const DOM = {
     html: document.documentElement,
-    themeToggle:
-      document.getElementById("themeToggle") ||
-      document.getElementById("themeToggleBtn"),
+    themeToggle: document.getElementById("themeToggle") || document.getElementById("themeToggleBtn"),
     themeIcon: document.getElementById("themeIcon"),
     qrForm: document.getElementById("qrForm"),
     urlInput: document.getElementById("urlInput"),
     urlError: document.getElementById("urlError"),
-    clearBtn:
-      document.getElementById("clearBtn") ||
-      document.getElementById("clearUrlBtn"),
+    clearBtn: document.getElementById("clearBtn") || document.getElementById("clearUrlBtn"),
     widthInput: document.getElementById("widthInput"),
     heightInput: document.getElementById("heightInput"),
     topText: document.getElementById("topText"),
@@ -26,10 +22,7 @@ document.addEventListener("DOMContentLoaded", () => {
   };
 
   const state = {
-    currentTheme:
-      localStorage.getItem("app_theme") ||
-      localStorage.getItem("theme") ||
-      "light",
+    currentTheme: localStorage.getItem("app_theme") || localStorage.getItem("theme") || "light",
     qrCode: null,
   };
 
@@ -144,8 +137,7 @@ document.addEventListener("DOMContentLoaded", () => {
       localStorage.setItem("app_top_text", DOM.topText.value);
     }
     if (DOM.bottomText && DOM.qrBadgeFooterText) {
-      DOM.qrBadgeFooterText.textContent =
-        DOM.bottomText.value.trim() || "WIFI / MENU";
+      DOM.qrBadgeFooterText.textContent = DOM.bottomText.value.trim() || "WIFI / MENU";
       localStorage.setItem("app_bottom_text", DOM.bottomText.value);
     }
   }
@@ -198,8 +190,7 @@ document.addEventListener("DOMContentLoaded", () => {
         });
       }
 
-      if (DOM.previewPlaceholder)
-        DOM.previewPlaceholder.classList.add("d-none");
+      if (DOM.previewPlaceholder) DOM.previewPlaceholder.classList.add("d-none");
       if (DOM.qrBadge) DOM.qrBadge.classList.remove("d-none");
       if (DOM.openPdfBtn) DOM.openPdfBtn.disabled = false;
 
@@ -218,8 +209,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (DOM.clearBtn) DOM.clearBtn.classList.remove("visible");
     if (DOM.generateBtn) DOM.generateBtn.disabled = true;
     if (DOM.qrBadge) DOM.qrBadge.classList.add("d-none");
-    if (DOM.previewPlaceholder)
-      DOM.previewPlaceholder.classList.remove("d-none");
+    if (DOM.previewPlaceholder) DOM.previewPlaceholder.classList.remove("d-none");
     if (DOM.openPdfBtn) DOM.openPdfBtn.disabled = true;
     DOM.urlInput.focus();
   }
@@ -235,8 +225,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (DOM.openPdfBtn) DOM.openPdfBtn.disabled = true;
 
     if (DOM.qrBadge) DOM.qrBadge.classList.add("d-none");
-    if (DOM.previewPlaceholder)
-      DOM.previewPlaceholder.classList.remove("d-none");
+    if (DOM.previewPlaceholder) DOM.previewPlaceholder.classList.remove("d-none");
 
     if (DOM.qrCodeCanvas) DOM.qrCodeCanvas.innerHTML = "";
     state.qrCode = null;
@@ -312,21 +301,11 @@ document.addEventListener("DOMContentLoaded", () => {
         onclone: (clonedDoc) => {
           clonedDoc.documentElement.setAttribute("data-theme", "light");
           const clonedBadgeInner = clonedDoc.querySelector(".qr-badge-inner");
-          const clonedFooterText = clonedDoc.querySelector(
-            ".qr-badge-footer-text",
-          );
+          const clonedFooterText = clonedDoc.querySelector(".qr-badge-footer-text");
 
           if (clonedBadgeInner) {
-            clonedBadgeInner.style.setProperty(
-              "border-color",
-              "#111827",
-              "important",
-            );
-            clonedBadgeInner.style.setProperty(
-              "background-color",
-              "#ffffff",
-              "important",
-            );
+            clonedBadgeInner.style.setProperty("border-color", "#111827", "important");
+            clonedBadgeInner.style.setProperty("background-color", "#ffffff", "important");
           }
           if (clonedFooterText) {
             clonedFooterText.style.setProperty("color", "#111827", "important");
@@ -391,17 +370,13 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   if (DOM.topText) DOM.topText.addEventListener("input", updateBadgeTexts);
-  if (DOM.bottomText)
-    DOM.bottomText.addEventListener("input", updateBadgeTexts);
+  if (DOM.bottomText) DOM.bottomText.addEventListener("input", updateBadgeTexts);
 
-  if (DOM.widthInput)
-    DOM.widthInput.addEventListener("input", handleDimensionsInput);
-  if (DOM.heightInput)
-    DOM.heightInput.addEventListener("input", handleDimensionsInput);
+  if (DOM.widthInput) DOM.widthInput.addEventListener("input", handleDimensionsInput);
+  if (DOM.heightInput) DOM.heightInput.addEventListener("input", handleDimensionsInput);
 
   if (DOM.clearBtn) DOM.clearBtn.addEventListener("click", clearUrlInputOnly);
-  if (DOM.generateBtn)
-    DOM.generateBtn.addEventListener("click", (e) => generateQRCode(e));
+  if (DOM.generateBtn) DOM.generateBtn.addEventListener("click", (e) => generateQRCode(e));
   if (DOM.resetBtn) DOM.resetBtn.addEventListener("click", resetForm);
   if (DOM.openPdfBtn) DOM.openPdfBtn.addEventListener("click", openPdf);
 
