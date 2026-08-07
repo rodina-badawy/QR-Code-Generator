@@ -1,43 +1,40 @@
 document.addEventListener("DOMContentLoaded", () => {
   const DOM = {
     html: document.documentElement,
-    themeToggle: document.getElementById("themeToggle") || document.getElementById("themeToggleBtn"),
+    themeToggle: document.getElementById("themeToggle"),
     themeIcon: document.getElementById("themeIcon"),
     qrForm: document.getElementById("qrForm"),
     urlInput: document.getElementById("urlInput"),
     urlError: document.getElementById("urlError"),
-    clearBtn: document.getElementById("clearBtn") || document.getElementById("clearUrlBtn"),
+    clearBtn: document.getElementById("clearBtn"),
     widthInput: document.getElementById("widthInput"),
     heightInput: document.getElementById("heightInput"),
-    topText: document.getElementById("topText"),
-    bottomText: document.getElementById("bottomText"),
     generateBtn: document.getElementById("generateBtn"),
     resetBtn: document.getElementById("resetBtn"),
     openPdfBtn: document.getElementById("openPdfBtn"),
     previewPlaceholder: document.getElementById("previewPlaceholder"),
     qrBadge: document.getElementById("qrBadge"),
-    qrBadgePill: document.getElementById("qrBadgePill"),
-    qrBadgeFooterText: document.getElementById("qrBadgeFooterText"),
     qrCodeCanvas: document.getElementById("qrCodeCanvas"),
   };
 
   const state = {
-    currentTheme: localStorage.getItem("app_theme") || localStorage.getItem("theme") || "light",
+    currentTheme: localStorage.getItem("app_theme") || "light",
     qrCode: null,
   };
 
-  // --- 1. THEME LOGIC WITH LOCALSTORAGE & ICON UPDATE ---
+  // --- 1. THEME LOGIC WITH LOCALSTORAGE & SMOOTH ICON UPDATE ---
   function applyTheme(theme) {
     state.currentTheme = theme;
     DOM.html.setAttribute("data-theme", theme);
     localStorage.setItem("app_theme", theme);
-    localStorage.setItem("theme", theme);
 
     if (DOM.themeIcon) {
       if (theme === "dark") {
-        DOM.themeIcon.className = "bi bi-sun-fill fa-solid fa-sun";
+        DOM.themeIcon.classList.remove("fa-moon");
+        DOM.themeIcon.classList.add("fa-sun");
       } else {
-        DOM.themeIcon.className = "bi bi-moon-stars-fill fa-solid fa-moon";
+        DOM.themeIcon.classList.remove("fa-sun");
+        DOM.themeIcon.classList.add("fa-moon");
       }
     }
   }
@@ -89,8 +86,6 @@ document.addEventListener("DOMContentLoaded", () => {
       if (valid) {
         hideError();
         if (DOM.generateBtn) DOM.generateBtn.disabled = false;
-        // التحديث التلقائي للإنشاء المعاين في حال عدم وجود زر إنشاء مستقل
-        if (!DOM.generateBtn) generateQRCode();
       } else {
         showError(error || "Please enter a valid URL");
         if (DOM.generateBtn) DOM.generateBtn.disabled = true;
@@ -99,7 +94,6 @@ document.addEventListener("DOMContentLoaded", () => {
       if (DOM.clearBtn) DOM.clearBtn.classList.remove("visible");
       if (DOM.generateBtn) DOM.generateBtn.disabled = true;
       hideError();
-      if (!DOM.generateBtn) resetForm();
     }
   }
 
@@ -126,20 +120,6 @@ document.addEventListener("DOMContentLoaded", () => {
       localStorage.setItem("app_qr_width", val);
       localStorage.setItem("app_qr_height", val);
     }
-    if (DOM.qrBadge && !DOM.qrBadge.classList.contains("d-none")) {
-      generateQRCode();
-    }
-  }
-
-  function updateBadgeTexts() {
-    if (DOM.topText && DOM.qrBadgePill) {
-      DOM.qrBadgePill.textContent = DOM.topText.value.trim() || "SCAN ME";
-      localStorage.setItem("app_top_text", DOM.topText.value);
-    }
-    if (DOM.bottomText && DOM.qrBadgeFooterText) {
-      DOM.qrBadgeFooterText.textContent = DOM.bottomText.value.trim() || "WIFI / MENU";
-      localStorage.setItem("app_bottom_text", DOM.bottomText.value);
-    }
   }
 
   // --- 4. QR GENERATOR LOGIC ---
@@ -156,41 +136,41 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     hideError();
-    updateBadgeTexts();
 
     if (DOM.qrCodeCanvas) {
       DOM.qrCodeCanvas.innerHTML = "";
     }
 
-    const width = parseInt(DOM.widthInput?.value, 10) || 180;
-    const height = parseInt(DOM.heightInput?.value, 10) || width;
+    const width = parseInt(DOM.widthInput?.value, 10) || 200;
+    const height = parseInt(DOM.heightInput?.value, 10) || 200;
 
     try {
-      // دعم مكتبة QRCodeStyling أو مكتبة QRCode التقليدية
-      if (typeof QRCodeStyling !== "undefined") {
-        state.qrCode = new QRCodeStyling({
-          width: width,
-          height: height,
-          type: "canvas",
-          data: url,
-          dotsOptions: { color: "#111827", type: "square" },
-          backgroundOptions: { color: "#ffffff" },
-          cornersSquareOptions: { color: "#111827", type: "square" },
-          cornersDotOptions: { color: "#111827", type: "square" },
-        });
-        state.qrCode.append(DOM.qrCodeCanvas);
-      } else if (typeof QRCode !== "undefined") {
-        state.qrCode = new QRCode(DOM.qrCodeCanvas, {
-          text: url,
-          width: width,
-          height: height,
-          colorDark: "#000000",
-          colorLight: "#ffffff",
-          correctLevel: QRCode.CorrectLevel.H,
-        });
-      }
+      state.qrCode = new QRCodeStyling({
+        width: width,
+        height: height,
+        type: "canvas",
+        data: url,
+        dotsOptions: {
+          color: "#111827",
+          type: "square",
+        },
+        backgroundOptions: {
+          color: "#ffffff",
+        },
+        cornersSquareOptions: {
+          color: "#111827",
+          type: "square",
+        },
+        cornersDotOptions: {
+          color: "#111827",
+          type: "square",
+        },
+      });
 
-      if (DOM.previewPlaceholder) DOM.previewPlaceholder.classList.add("d-none");
+      state.qrCode.append(DOM.qrCodeCanvas);
+
+      if (DOM.previewPlaceholder)
+        DOM.previewPlaceholder.classList.add("d-none");
       if (DOM.qrBadge) DOM.qrBadge.classList.remove("d-none");
       if (DOM.openPdfBtn) DOM.openPdfBtn.disabled = false;
 
@@ -208,24 +188,19 @@ document.addEventListener("DOMContentLoaded", () => {
     hideError();
     if (DOM.clearBtn) DOM.clearBtn.classList.remove("visible");
     if (DOM.generateBtn) DOM.generateBtn.disabled = true;
-    if (DOM.qrBadge) DOM.qrBadge.classList.add("d-none");
-    if (DOM.previewPlaceholder) DOM.previewPlaceholder.classList.remove("d-none");
-    if (DOM.openPdfBtn) DOM.openPdfBtn.disabled = true;
     DOM.urlInput.focus();
   }
 
   function resetForm() {
     if (DOM.urlInput) DOM.urlInput.value = "";
-    if (DOM.topText) DOM.topText.value = "";
-    if (DOM.bottomText) DOM.bottomText.value = "";
     hideError();
-
     if (DOM.clearBtn) DOM.clearBtn.classList.remove("visible");
     if (DOM.generateBtn) DOM.generateBtn.disabled = true;
     if (DOM.openPdfBtn) DOM.openPdfBtn.disabled = true;
 
     if (DOM.qrBadge) DOM.qrBadge.classList.add("d-none");
-    if (DOM.previewPlaceholder) DOM.previewPlaceholder.classList.remove("d-none");
+    if (DOM.previewPlaceholder)
+      DOM.previewPlaceholder.classList.remove("d-none");
 
     if (DOM.qrCodeCanvas) DOM.qrCodeCanvas.innerHTML = "";
     state.qrCode = null;
@@ -234,8 +209,6 @@ document.addEventListener("DOMContentLoaded", () => {
     if (DOM.heightInput) DOM.heightInput.value = 200;
 
     localStorage.removeItem("app_url_input");
-    localStorage.removeItem("app_top_text");
-    localStorage.removeItem("app_bottom_text");
     localStorage.removeItem("app_qr_width");
     localStorage.removeItem("app_qr_height");
     localStorage.removeItem("app_qr_generated");
@@ -246,16 +219,16 @@ document.addEventListener("DOMContentLoaded", () => {
     applyTheme(state.currentTheme);
 
     const savedUrl = localStorage.getItem("app_url_input");
-    const savedTop = localStorage.getItem("app_top_text");
-    const savedBottom = localStorage.getItem("app_bottom_text");
     const savedWidth = localStorage.getItem("app_qr_width");
     const savedHeight = localStorage.getItem("app_qr_height") || savedWidth;
     const wasGenerated = localStorage.getItem("app_qr_generated") === "true";
 
-    if (savedWidth && DOM.widthInput) DOM.widthInput.value = savedWidth;
-    if (savedHeight && DOM.heightInput) DOM.heightInput.value = savedHeight;
-    if (savedTop && DOM.topText) DOM.topText.value = savedTop;
-    if (savedBottom && DOM.bottomText) DOM.bottomText.value = savedBottom;
+    if (savedWidth && DOM.widthInput) {
+      DOM.widthInput.value = savedWidth;
+    }
+    if (savedHeight && DOM.heightInput) {
+      DOM.heightInput.value = savedHeight;
+    }
 
     if (savedUrl && DOM.urlInput) {
       DOM.urlInput.value = savedUrl;
@@ -301,14 +274,16 @@ document.addEventListener("DOMContentLoaded", () => {
         onclone: (clonedDoc) => {
           clonedDoc.documentElement.setAttribute("data-theme", "light");
           const clonedBadgeInner = clonedDoc.querySelector(".qr-badge-inner");
-          const clonedFooterText = clonedDoc.querySelector(".qr-badge-footer-text");
+          const clonedFooterText = clonedDoc.querySelector(
+            ".qr-badge-footer-text",
+          );
 
           if (clonedBadgeInner) {
-            clonedBadgeInner.style.setProperty("border-color", "#111827", "important");
-            clonedBadgeInner.style.setProperty("background-color", "#ffffff", "important");
+            clonedBadgeInner.style.borderColor = "#111827";
+            clonedBadgeInner.style.backgroundColor = "#ffffff";
           }
           if (clonedFooterText) {
-            clonedFooterText.style.setProperty("color", "#111827", "important");
+            clonedFooterText.style.color = "#111827";
           }
         },
       });
@@ -369,14 +344,12 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  if (DOM.topText) DOM.topText.addEventListener("input", updateBadgeTexts);
-  if (DOM.bottomText) DOM.bottomText.addEventListener("input", updateBadgeTexts);
-
-  if (DOM.widthInput) DOM.widthInput.addEventListener("input", handleDimensionsInput);
-  if (DOM.heightInput) DOM.heightInput.addEventListener("input", handleDimensionsInput);
+  if (DOM.widthInput)
+    DOM.widthInput.addEventListener("input", handleDimensionsInput);
 
   if (DOM.clearBtn) DOM.clearBtn.addEventListener("click", clearUrlInputOnly);
-  if (DOM.generateBtn) DOM.generateBtn.addEventListener("click", (e) => generateQRCode(e));
+  if (DOM.generateBtn)
+    DOM.generateBtn.addEventListener("click", (e) => generateQRCode(e));
   if (DOM.resetBtn) DOM.resetBtn.addEventListener("click", resetForm);
   if (DOM.openPdfBtn) DOM.openPdfBtn.addEventListener("click", openPdf);
 
