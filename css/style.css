@@ -480,14 +480,12 @@ a {
 
 /* DARK MODE ADJUSTMENTS */
 
-html[data-theme="dark"] .qr-badge-inner,
 [data-theme="dark"] .qr-badge-inner {
-  border-color: #ffffff !important;
+  border-color: #f8fafc !important;
 }
 
-html[data-theme="dark"] .qr-badge-footer-text,
 [data-theme="dark"] .qr-badge-footer-text {
-  color: #ffffff !important;
+  color: #f8fafc !important;
 }
 
 /* RESPONSIVE */
