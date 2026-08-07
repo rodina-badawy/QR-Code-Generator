@@ -13,13 +13,13 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
       rel="stylesheet"
     />
     <!-- Favicon -->
     <link rel="shortcut icon" href="favicon.png" type="image/x-icon" />
 
-    <!-- Theme Inline Script -->
+    <!-- Theme Inline Script (Prevents FOUT/Flash of unstyled content) -->
     <script>
       (function() {
         const savedTheme = localStorage.getItem("app_theme") || "light";
@@ -34,7 +34,7 @@
     <nav class="app-navbar navbar navbar-expand-lg sticky-top">
       <div class="container-fluid px-3 px-md-4">
         <a class="navbar-brand app-brand me-auto" href="#">
-          <span class="app-brand-icon"><i class="fa-solid fa-qrcode"></i></span>
+          <span class="app-brand-icon"><i class="fa-solid fa-qrcode" aria-hidden="true"></i></span>
           <span class="app-brand-text">QR Code</span>
         </a>
 
@@ -44,8 +44,9 @@
             class="theme-toggle"
             id="themeToggle"
             aria-label="Toggle dark mode"
+            aria-pressed="false"
           >
-            <i class="fa-solid fa-moon" id="themeIcon"></i>
+            <i class="fa-solid fa-moon" id="themeIcon" aria-hidden="true"></i>
           </button>
 
           <button
@@ -89,12 +90,12 @@
             <div class="app-card controls-card">
               <h2 class="card-heading">1. Enter your details</h2>
 
-              <form id="qrForm" onsubmit="return false;">
+              <form id="qrForm" novalidate>
                 <!-- URL Input -->
                 <div class="mb-3">
                   <label for="urlInput" class="form-label app-label">Destination URL</label>
                   <div class="url-input-wrap position-relative">
-                    <i class="fa-solid fa-link input-icon"></i>
+                    <i class="fa-solid fa-link input-icon" aria-hidden="true"></i>
                     <input
                       type="url"
                       inputmode="url"
@@ -103,21 +104,24 @@
                       placeholder="https://example.com"
                       aria-describedby="urlHint urlError"
                       autocomplete="off"
+                      spellcheck="false"
+                      required
                     />
                     <button
                       type="button"
                       class="clear-btn d-none"
                       id="clearBtn"
                       aria-label="Clear input"
+                      tabindex="-1"
                     >
-                      <i class="fa-solid fa-xmark"></i>
+                      <i class="fa-solid fa-xmark" aria-hidden="true"></i>
                     </button>
                   </div>
                   <div class="input-hint mt-1" id="urlHint">
                     Include http:// or https://
                   </div>
                   <!-- Dynamic Error Message Element -->
-                  <div class="invalid-feedback mt-1 text-danger fw-semibold" id="urlError" style="display: none;"></div>
+                  <div class="invalid-feedback mt-1 text-danger fw-semibold" id="urlError" role="alert" style="display: none;"></div>
                 </div>
 
                 <!-- Dimensions -->
@@ -132,10 +136,14 @@
                       min="80"
                       max="1000"
                       step="10"
+                      required
                     />
                   </div>
                   <div class="col-6">
-                    <label for="heightInput" class="form-label app-label">Height (px) <i class="fa-solid fa-lock text-muted ms-1" style="font-size:0.75rem;" title="Auto-synced with width"></i></label>
+                    <label for="heightInput" class="form-label app-label">
+                      Height (px) 
+                      <i class="fa-solid fa-lock text-muted ms-1" style="font-size:0.75rem;" title="Auto-synced with width" aria-hidden="true"></i>
+                    </label>
                     <input
                       type="number"
                       class="form-control app-input"
@@ -151,11 +159,11 @@
                 <!-- Action Buttons -->
                 <div class="d-flex flex-column flex-sm-row gap-3">
                   <button
-                    type="button"
+                    type="submit"
                     class="btn app-btn-primary flex-fill"
                     id="generateBtn"
                   >
-                    <i class="fa-solid fa-wand-magic-sparkles me-2"></i>
+                    <i class="fa-solid fa-wand-magic-sparkles me-2" aria-hidden="true"></i>
                     <span>Generate QR Code</span>
                   </button>
                   <button
@@ -163,7 +171,7 @@
                     class="btn app-btn-outline flex-fill"
                     id="resetBtn"
                   >
-                    <i class="fa-solid fa-rotate-left me-2"></i>
+                    <i class="fa-solid fa-rotate-left me-2" aria-hidden="true"></i>
                     <span>Reset</span>
                   </button>
                 </div>
@@ -180,7 +188,7 @@
                 <!-- Placeholder State -->
                 <div class="preview-placeholder" id="previewPlaceholder">
                   <div class="placeholder-icon">
-                    <i class="fa-solid fa-qrcode"></i>
+                    <i class="fa-solid fa-qrcode" aria-hidden="true"></i>
                   </div>
                   <p class="placeholder-text">
                     Please enter a valid URL and click Generate QR Code
@@ -203,7 +211,7 @@
                 id="openPdfBtn"
                 disabled
               >
-                <i class="fa-solid fa-file-pdf me-2"></i>
+                <i class="fa-solid fa-file-pdf me-2" aria-hidden="true"></i>
                 <span>Open PDF</span>
               </button>
             </div>

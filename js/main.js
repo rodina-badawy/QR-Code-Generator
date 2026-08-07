@@ -22,11 +22,18 @@ document.addEventListener("DOMContentLoaded", () => {
     qrCode: null,
   };
 
-  // --- 1. THEME LOGIC WITH LOCALSTORAGE & SMOOTH ICON UPDATE ---
+  // --- 1. THEME LOGIC ---
   function applyTheme(theme) {
     state.currentTheme = theme;
     DOM.html.setAttribute("data-theme", theme);
     localStorage.setItem("app_theme", theme);
+
+    if (DOM.themeToggle) {
+      DOM.themeToggle.setAttribute(
+        "aria-pressed",
+        theme === "dark" ? "true" : "false",
+      );
+    }
 
     if (DOM.themeIcon) {
       if (theme === "dark") {
@@ -44,7 +51,7 @@ document.addEventListener("DOMContentLoaded", () => {
     applyTheme(nextTheme);
   }
 
-  // --- 2. URL VALIDATION & NORMALIZATION ---
+  // --- 2. URL VALIDATION ---
   function normalizeUrl(rawInput) {
     if (!rawInput) return { valid: false, url: "", error: "" };
 
@@ -72,7 +79,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // --- 3. INPUT HANDLER & LOCALSTORAGE FOR FORM ---
+  // --- 3. INPUT HANDLERS ---
   function handleUrlInput() {
     if (!DOM.urlInput) return;
     const rawValue = DOM.urlInput.value.trim();
@@ -80,7 +87,7 @@ document.addEventListener("DOMContentLoaded", () => {
     localStorage.setItem("app_url_input", DOM.urlInput.value);
 
     if (rawValue.length > 0) {
-      if (DOM.clearBtn) DOM.clearBtn.classList.add("visible");
+      if (DOM.clearBtn) DOM.clearBtn.classList.remove("d-none");
       const { valid, error } = normalizeUrl(rawValue);
 
       if (valid) {
@@ -91,7 +98,7 @@ document.addEventListener("DOMContentLoaded", () => {
         if (DOM.generateBtn) DOM.generateBtn.disabled = true;
       }
     } else {
-      if (DOM.clearBtn) DOM.clearBtn.classList.remove("visible");
+      if (DOM.clearBtn) DOM.clearBtn.classList.add("d-none");
       if (DOM.generateBtn) DOM.generateBtn.disabled = true;
       hideError();
     }
@@ -115,7 +122,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function handleDimensionsInput() {
     if (DOM.widthInput && DOM.heightInput) {
-      const val = DOM.widthInput.value;
+      let val = parseInt(DOM.widthInput.value, 10);
+      if (isNaN(val)) val = 200;
+
       DOM.heightInput.value = val;
       localStorage.setItem("app_qr_width", val);
       localStorage.setItem("app_qr_height", val);
@@ -141,15 +150,19 @@ document.addEventListener("DOMContentLoaded", () => {
       DOM.qrCodeCanvas.innerHTML = "";
     }
 
-    const width = parseInt(DOM.widthInput?.value, 10) || 200;
-    const height = parseInt(DOM.heightInput?.value, 10) || 200;
+    // جودة أبعاد مثالية للرسم 300px
+    const renderSize = 300;
 
     try {
       state.qrCode = new QRCodeStyling({
-        width: width,
-        height: height,
+        width: renderSize,
+        height: renderSize,
         type: "canvas",
         data: url,
+        margin: 0, // إزالة أي هامش داخلي ليتمدد الـ QR بالكامل
+        qrOptions: {
+          errorCorrectionLevel: "M",
+        },
         dotsOptions: {
           color: "#111827",
           type: "square",
@@ -180,13 +193,13 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // --- 5. FORM ACTIONS & RESET ---
+  // --- 5. FORM RESET & CLEAR ---
   function clearUrlInputOnly() {
     if (!DOM.urlInput) return;
     DOM.urlInput.value = "";
     localStorage.removeItem("app_url_input");
     hideError();
-    if (DOM.clearBtn) DOM.clearBtn.classList.remove("visible");
+    if (DOM.clearBtn) DOM.clearBtn.classList.add("d-none");
     if (DOM.generateBtn) DOM.generateBtn.disabled = true;
     DOM.urlInput.focus();
   }
@@ -194,7 +207,7 @@ document.addEventListener("DOMContentLoaded", () => {
   function resetForm() {
     if (DOM.urlInput) DOM.urlInput.value = "";
     hideError();
-    if (DOM.clearBtn) DOM.clearBtn.classList.remove("visible");
+    if (DOM.clearBtn) DOM.clearBtn.classList.add("d-none");
     if (DOM.generateBtn) DOM.generateBtn.disabled = true;
     if (DOM.openPdfBtn) DOM.openPdfBtn.disabled = true;
 
@@ -214,7 +227,7 @@ document.addEventListener("DOMContentLoaded", () => {
     localStorage.removeItem("app_qr_generated");
   }
 
-  // --- 6. RESTORE SAVED STATE ON LOAD ---
+  // --- 6. RESTORE SAVED STATE ---
   function restoreSavedState() {
     applyTheme(state.currentTheme);
 
@@ -265,13 +278,27 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     try {
-      const isDarkMode = state.currentTheme === "dark";
       const canvas = await html2canvas(DOM.qrBadge, {
         scale: 3,
         useCORS: true,
         allowTaint: true,
         logging: false,
-        backgroundColor: isDarkMode ? "#141a28" : "#ffffff",
+        backgroundColor: "#ffffff",
+        onclone: (clonedDoc) => {
+          clonedDoc.documentElement.setAttribute("data-theme", "light");
+          const clonedBadgeInner = clonedDoc.querySelector(".qr-badge-inner");
+          const clonedFooterText = clonedDoc.querySelector(
+            ".qr-badge-footer-text",
+          );
+
+          if (clonedBadgeInner) {
+            clonedBadgeInner.style.borderColor = "#111827";
+            clonedBadgeInner.style.backgroundColor = "#ffffff";
+          }
+          if (clonedFooterText) {
+            clonedFooterText.style.color = "#111827";
+          }
+        },
       });
 
       const imgData = canvas.toDataURL("image/png");
@@ -314,7 +341,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // --- 8. EVENT BINDINGS & INIT ---
+  // --- 8. EVENT BINDINGS ---
   if (DOM.themeToggle) DOM.themeToggle.addEventListener("click", toggleTheme);
 
   if (DOM.qrForm) {
