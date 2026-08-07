@@ -18,13 +18,14 @@
     />
     <!-- Favicon -->
     <link rel="shortcut icon" href="favicon.png" type="image/x-icon" />
-    <!--  -->
+
+    <!-- Theme Inline Script -->
     <script>
-    (function() {
-      const savedTheme = localStorage.getItem("app_theme") || "light";
-      document.documentElement.setAttribute("data-theme", savedTheme);
-    })();
-  </script>
+      (function() {
+        const savedTheme = localStorage.getItem("app_theme") || "light";
+        document.documentElement.setAttribute("data-theme", savedTheme);
+      })();
+    </script>
     <!-- App Styles -->
     <link rel="stylesheet" href="css/style.css" />
   </head>
@@ -72,9 +73,9 @@
     </nav>
 
     <!-- ===================== MAIN ======================= -->
-    <main class="app-main">
+    <main class="app-main py-4">
       <div class="container">
-        <div class="text-center hero-copy">
+        <div class="text-center hero-copy mb-4 mb-lg-5">
           <h1 class="hero-title">Turn any link into a scannable QR code</h1>
           <p class="hero-sub">
             Paste a URL, generate a printable QR badge, and download it as a PDF
@@ -91,10 +92,8 @@
               <form id="qrForm" onsubmit="return false;">
                 <!-- URL Input -->
                 <div class="mb-3">
-                  <label for="urlInput" class="form-label app-label"
-                    >Destination URL</label
-                  >
-                  <div class="url-input-wrap">
+                  <label for="urlInput" class="form-label app-label">Destination URL</label>
+                  <div class="url-input-wrap position-relative">
                     <i class="fa-solid fa-link input-icon"></i>
                     <input
                       type="url"
@@ -102,28 +101,29 @@
                       class="form-control app-input url-input"
                       id="urlInput"
                       placeholder="https://example.com"
+                      aria-describedby="urlHint urlError"
                       autocomplete="off"
                     />
                     <button
                       type="button"
-                      class="clear-btn"
+                      class="clear-btn d-none"
                       id="clearBtn"
                       aria-label="Clear input"
                     >
                       <i class="fa-solid fa-xmark"></i>
                     </button>
                   </div>
-                  <div class="input-hint" id="urlHint">
+                  <div class="input-hint mt-1" id="urlHint">
                     Include http:// or https://
                   </div>
+                  <!-- Dynamic Error Message Element -->
+                  <div class="invalid-feedback mt-1 text-danger fw-semibold" id="urlError" style="display: none;"></div>
                 </div>
 
                 <!-- Dimensions -->
                 <div class="row g-3 mb-4">
                   <div class="col-6">
-                    <label for="widthInput" class="form-label app-label"
-                      >Width (px)</label
-                    >
+                    <label for="widthInput" class="form-label app-label">Size / Width (px)</label>
                     <input
                       type="number"
                       class="form-control app-input"
@@ -135,17 +135,15 @@
                     />
                   </div>
                   <div class="col-6">
-                    <label for="heightInput" class="form-label app-label"
-                      >Height (px)</label
-                    >
+                    <label for="heightInput" class="form-label app-label">Height (px) <i class="fa-solid fa-lock text-muted ms-1" style="font-size:0.75rem;" title="Auto-synced with width"></i></label>
                     <input
                       type="number"
                       class="form-control app-input"
                       id="heightInput"
                       value="200"
-                      min="80"
-                      max="1000"
-                      step="10"
+                      readonly
+                      tabindex="-1"
+                      style="opacity: 0.75; cursor: not-allowed;"
                     />
                   </div>
                 </div>
@@ -156,7 +154,6 @@
                     type="button"
                     class="btn app-btn-primary flex-fill"
                     id="generateBtn"
-                    disabled
                   >
                     <i class="fa-solid fa-wand-magic-sparkles me-2"></i>
                     <span>Generate QR Code</span>
