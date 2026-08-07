@@ -133,11 +133,13 @@
                       class="form-control app-input"
                       id="widthInput"
                       value="200"
-                      min="80"
+                      min="200"
                       max="1000"
                       step="10"
                       required
                     />
+                    <!-- Dynamic Width Error Message Element -->
+                    <div class="invalid-feedback mt-1 text-danger fw-semibold" id="widthError" role="alert" style="display: none;"></div>
                   </div>
                   <div class="col-6">
                     <label for="heightInput" class="form-label app-label">

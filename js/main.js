@@ -8,6 +8,7 @@ document.addEventListener("DOMContentLoaded", () => {
     urlError: document.getElementById("urlError"),
     clearBtn: document.getElementById("clearBtn"),
     widthInput: document.getElementById("widthInput"),
+    widthError: document.getElementById("widthError"),
     heightInput: document.getElementById("heightInput"),
     generateBtn: document.getElementById("generateBtn"),
     resetBtn: document.getElementById("resetBtn"),
@@ -92,7 +93,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
       if (valid) {
         hideError();
-        if (DOM.generateBtn) DOM.generateBtn.disabled = false;
+        validateFormState();
       } else {
         showError(error || "Please enter a valid URL");
         if (DOM.generateBtn) DOM.generateBtn.disabled = true;
@@ -120,14 +121,59 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  function handleDimensionsInput() {
-    if (DOM.widthInput && DOM.heightInput) {
-      let val = parseInt(DOM.widthInput.value, 10);
-      if (isNaN(val)) val = 200;
+  function showWidthError(msg) {
+    if (DOM.widthInput) DOM.widthInput.classList.add("is-invalid");
+    if (DOM.widthError) {
+      DOM.widthError.textContent = msg;
+      DOM.widthError.style.display = "block";
+    }
+  }
 
-      DOM.heightInput.value = val;
+  function hideWidthError() {
+    if (DOM.widthInput) DOM.widthInput.classList.remove("is-invalid");
+    if (DOM.widthError) {
+      DOM.widthError.textContent = "";
+      DOM.widthError.style.display = "none";
+    }
+  }
+
+  function validateWidth() {
+    if (!DOM.widthInput) return false;
+    const val = parseInt(DOM.widthInput.value, 10);
+    if (isNaN(val) || val < 200) {
+      showWidthError("Minimum size allowed is 200px");
+      return false;
+    }
+    hideWidthError();
+    return true;
+  }
+
+  function validateFormState() {
+    const isUrlValid =
+      DOM.urlInput && normalizeUrl(DOM.urlInput.value.trim()).valid;
+    const isWidthValid = validateWidth();
+
+    if (DOM.generateBtn) {
+      DOM.generateBtn.disabled = !(isUrlValid && isWidthValid);
+    }
+    return isUrlValid && isWidthValid;
+  }
+
+  function handleDimensionsInput() {
+    if (!DOM.widthInput || !DOM.heightInput) return;
+
+    const val = parseInt(DOM.widthInput.value, 10);
+    DOM.heightInput.value = isNaN(val) ? "" : val;
+
+    const isValid = validateFormState();
+
+    if (isValid) {
       localStorage.setItem("app_qr_width", val);
       localStorage.setItem("app_qr_height", val);
+
+      if (DOM.qrBadge && !DOM.qrBadge.classList.contains("d-none")) {
+        generateQRCode();
+      }
     }
   }
 
@@ -135,23 +181,18 @@ document.addEventListener("DOMContentLoaded", () => {
   function generateQRCode(e) {
     if (e) e.preventDefault();
 
-    if (!DOM.urlInput) return;
+    if (!DOM.urlInput || !validateFormState()) return;
+
     const rawValue = DOM.urlInput.value;
-    const { valid, url, error } = normalizeUrl(rawValue);
+    const { valid, url } = normalizeUrl(rawValue);
 
-    if (!valid) {
-      showError(error || "Please enter a valid URL");
-      return;
-    }
-
-    hideError();
+    if (!valid) return;
 
     if (DOM.qrCodeCanvas) {
       DOM.qrCodeCanvas.innerHTML = "";
     }
 
-    // جودة أبعاد مثالية للرسم 300px
-    const renderSize = 300;
+    let renderSize = parseInt(DOM.widthInput ? DOM.widthInput.value : 200, 10);
 
     try {
       state.qrCode = new QRCodeStyling({
@@ -159,7 +200,7 @@ document.addEventListener("DOMContentLoaded", () => {
         height: renderSize,
         type: "canvas",
         data: url,
-        margin: 0, // إزالة أي هامش داخلي ليتمدد الـ QR بالكامل
+        margin: 0,
         qrOptions: {
           errorCorrectionLevel: "M",
         },
@@ -207,6 +248,7 @@ document.addEventListener("DOMContentLoaded", () => {
   function resetForm() {
     if (DOM.urlInput) DOM.urlInput.value = "";
     hideError();
+    hideWidthError();
     if (DOM.clearBtn) DOM.clearBtn.classList.add("d-none");
     if (DOM.generateBtn) DOM.generateBtn.disabled = true;
     if (DOM.openPdfBtn) DOM.openPdfBtn.disabled = true;
@@ -248,7 +290,7 @@ document.addEventListener("DOMContentLoaded", () => {
       handleUrlInput();
     }
 
-    if (wasGenerated && savedUrl && normalizeUrl(savedUrl).valid) {
+    if (wasGenerated && savedUrl && validateFormState()) {
       generateQRCode();
     }
   }
@@ -357,8 +399,11 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  if (DOM.widthInput)
-    DOM.widthInput.addEventListener("input", handleDimensionsInput);
+  if (DOM.widthInput) {
+    ["input", "keyup", "change", "paste", "blur"].forEach((evt) => {
+      DOM.widthInput.addEventListener(evt, handleDimensionsInput);
+    });
+  }
 
   if (DOM.clearBtn) DOM.clearBtn.addEventListener("click", clearUrlInputOnly);
   if (DOM.generateBtn)

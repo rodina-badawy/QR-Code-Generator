@@ -253,6 +253,7 @@ a {
 
 .hero-title {
   font-weight: 800;
+  padding-top: 2.5em; ;
   font-size: clamp(1.75rem, 3.5vw, 2.5rem);
   margin-bottom: 0.75rem;
   letter-spacing: -0.02em;
@@ -260,6 +261,7 @@ a {
 }
 
 .hero-sub {
+  padding: .5rem;
   color: var(--text-muted);
   font-size: 1.05rem;
   margin-bottom: 0;
@@ -275,6 +277,18 @@ a {
   height: 100%;
   display: flex;
   flex-direction: column;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease;
+}
+
+/* Hover Effect for Cards */
+.app-card:hover {
+  border-color: var(--primary-color) !important;
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary-color) 20%, transparent);
+  transform: translateY(-2px);
+}
+
+[data-theme="dark"] .app-card:hover {
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.35);
 }
 
 .card-heading {
@@ -415,8 +429,8 @@ a {
   display: inline-flex;
   flex-direction: column;
   align-items: center;
-  width: 100%;
-  max-width: 280px;
+  width: auto;
+  max-width: 100%;
   margin: 0 auto !important;
   padding-top: 20px;
   box-sizing: border-box;
@@ -443,13 +457,14 @@ a {
 .qr-badge-inner {
   background: #ffffff;
   border: 3.5px solid #111827;
-  border-radius: 8px !important;
-  padding: 8px;
+  border-radius: 10px !important;
+  padding: 16px;
   display: flex;
   align-items: center;
   justify-content: center;
   line-height: 0;
-  width: 100%;
+  width: auto;
+  max-width: 100%;
   box-sizing: border-box;
   margin-top: -1px;
 }
@@ -458,8 +473,6 @@ a {
   display: flex !important;
   align-items: center;
   justify-content: center;
-  width: 100%;
-  height: auto;
   background: #ffffff;
 }
 
@@ -467,11 +480,10 @@ a {
 #qrCodeCanvas img,
 #qrCodeCanvas svg {
   display: block !important;
-  width: 100% !important;
+  max-width: 100% !important;
   height: auto !important;
   margin: 0 auto;
   box-sizing: border-box;
-  object-fit: contain;
 }
 
 .qr-badge-footer {
@@ -523,7 +535,7 @@ a {
     font-size: 1.1rem;
   }
   .qr-badge-inner {
-    padding: 6px;
+    padding: 12px;
   }
 }
 
