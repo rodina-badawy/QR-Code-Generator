@@ -90,10 +90,7 @@ document.addEventListener("DOMContentLoaded", () => {
     localStorage.setItem("app_url_input", DOM.urlInput.value);
 
     if (rawValue.length > 0) {
-      if (DOM.clearBtn) {
-        DOM.clearBtn.classList.remove("d-none");
-        DOM.clearBtn.classList.add("visible");
-      }
+      if (DOM.clearBtn) DOM.clearBtn.classList.add("visible");
       const { valid, error } = normalizeUrl(rawValue);
 
       if (valid) {
@@ -105,10 +102,7 @@ document.addEventListener("DOMContentLoaded", () => {
         if (DOM.generateBtn) DOM.generateBtn.disabled = true;
       }
     } else {
-      if (DOM.clearBtn) {
-        DOM.clearBtn.classList.add("d-none");
-        DOM.clearBtn.classList.remove("visible");
-      }
+      if (DOM.clearBtn) DOM.clearBtn.classList.remove("visible");
       if (DOM.generateBtn) DOM.generateBtn.disabled = true;
       hideError();
       if (!DOM.generateBtn) resetForm();
@@ -219,10 +213,7 @@ document.addEventListener("DOMContentLoaded", () => {
     DOM.urlInput.value = "";
     localStorage.removeItem("app_url_input");
     hideError();
-    if (DOM.clearBtn) {
-      DOM.clearBtn.classList.add("d-none");
-      DOM.clearBtn.classList.remove("visible");
-    }
+    if (DOM.clearBtn) DOM.clearBtn.classList.remove("visible");
     if (DOM.generateBtn) DOM.generateBtn.disabled = true;
     if (DOM.qrBadge) DOM.qrBadge.classList.add("d-none");
     if (DOM.previewPlaceholder)
@@ -237,10 +228,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (DOM.bottomText) DOM.bottomText.value = "";
     hideError();
 
-    if (DOM.clearBtn) {
-      DOM.clearBtn.classList.add("d-none");
-      DOM.clearBtn.classList.remove("visible");
-    }
+    if (DOM.clearBtn) DOM.clearBtn.classList.remove("visible");
     if (DOM.generateBtn) DOM.generateBtn.disabled = true;
     if (DOM.openPdfBtn) DOM.openPdfBtn.disabled = true;
 
